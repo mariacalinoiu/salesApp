@@ -9,21 +9,21 @@ import (
 	"github.com/mariacalinoiu/salesApp/src/datasources"
 )
 
-func HandleArticole(w http.ResponseWriter, r *http.Request, db datasources.DBClient, logger *log.Logger) {
+func HandleVanzari(w http.ResponseWriter, r *http.Request, db datasources.DBClient, logger *log.Logger) {
 	var response []byte
 	var status int
 	var err error
 
 	switch r.Method {
 	case http.MethodGet:
-		response, status, err = getArticole(db, logger)
+		response, status, err = getVanzari(db, logger)
 	//case http.MethodPost, http.MethodPut:
-	//	response, status, err = insertArticole(r, db, logger, r.Method == http.MethodPut)
+	//	response, status, err = insertVanzari(r, db, logger, r.Method == http.MethodPut)
 	//case http.MethodDelete:
 	//	status, err = deleteOrder(r, db, logger)
 	default:
 		status = http.StatusBadRequest
-		err = errors.New("wrong method type for /articole route")
+		err = errors.New("wrong method type for /vanzari route")
 	}
 
 	if err != nil {
@@ -46,16 +46,16 @@ func HandleArticole(w http.ResponseWriter, r *http.Request, db datasources.DBCli
 	logger.Printf("Status: %d %s", status, http.StatusText(status))
 }
 
-func getArticole(db datasources.DBClient, logger *log.Logger) ([]byte, int, error) {
-	articole, err := db.GetArticole()
+func getVanzari(db datasources.DBClient, logger *log.Logger) ([]byte, int, error) {
+	vanzari, err := db.GetVanzari()
 	if err != nil {
 		logger.Printf("Internal error: %s", err.Error())
-		return nil, http.StatusInternalServerError, errors.New("could not get articole")
+		return nil, http.StatusInternalServerError, errors.New("could not get vanzari")
 	}
 
-	response, err := json.Marshal(articole)
+	response, err := json.Marshal(vanzari)
 	if err != nil {
-		return nil, http.StatusInternalServerError, errors.New("could not marshal articole response json")
+		return nil, http.StatusInternalServerError, errors.New("could not marshal vanzari response json")
 	}
 
 	return response, http.StatusOK, nil

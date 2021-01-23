@@ -93,7 +93,7 @@ func (client DBClient) GetVanzari() ([]repositories.Vanzare, error) {
 	)
 
 	rows, err := client.db.Query(
-		"SELECT IDIntrare, CodPartener, Status, DataIntrare, DataLivrare, Total, VAT, Discount, Moneda, Platit, Comentarii, CodVanzator, IdSucursala FROM Vanzari",
+		"SELECT IdIntrare, CodPartener, Status, DataIntrare, DataLivrare, Total, vat, Discount, Moneda, Platit, Comentarii, CodVanzator, IdSucursala FROM Vanzari",
 	)
 	if err != nil {
 		return []repositories.Vanzare{}, err
@@ -134,7 +134,60 @@ func (client DBClient) GetVanzari() ([]repositories.Vanzare, error) {
 	return vanzari, nil
 }
 
-func (client DBClient) GetArticol() ([]repositories.Articol, error) {
+func (client DBClient) GetLiniiVanzare(IDIntrareVanzari int) ([]repositories.LinieVanzare, error) {
+	var (
+		liniiVanzare []repositories.LinieVanzare
+		IDIntrare    int
+		numarLinie   int
+		codArticol   string
+		cantitate    float32
+		pret         float32
+		discount     float32
+		VAT          float32
+		totalLinie   float32
+		IDProiect    string
+	)
+
+	rows, err := client.db.Query(
+		"SELECT IdIntrare, NumarLinie, CodArticol, Cantitate, Pret, Discount, VAT, TotalLinie, IdProiect FROM LiniiVanzari WHERE IdIntrare = ?",
+		IDIntrareVanzari,
+	)
+	if err != nil {
+		return []repositories.LinieVanzare{}, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&IDIntrare, &numarLinie, &codArticol, &cantitate, &pret, &discount, &VAT, &totalLinie, &IDProiect)
+		if err != nil {
+			return []repositories.LinieVanzare{}, err
+		}
+
+		liniiVanzare = append(
+			liniiVanzare,
+			repositories.LinieVanzare{
+				IDIntrare:  IDIntrare,
+				NumarLinie: numarLinie,
+				CodArticol: codArticol,
+				Cantitate:  cantitate,
+				Pret:       pret,
+				Discount:   discount,
+				VAT:        VAT,
+				TotalLinie: totalLinie,
+				IDProiect:  IDProiect,
+			},
+		)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []repositories.LinieVanzare{}, err
+	}
+
+	return liniiVanzare, nil
+}
+
+func (client DBClient) GetArticole() ([]repositories.Articol, error) {
 	var (
 		articole        []repositories.Articol
 		cod             string
@@ -176,6 +229,138 @@ func (client DBClient) GetArticol() ([]repositories.Articol, error) {
 	}
 
 	return articole, nil
+}
+
+func (client DBClient) GetVanzatori() ([]repositories.Vanzator, error) {
+	var (
+		vanzatori   []repositories.Vanzator
+		codVanzator int
+		nume        string
+		prenume     string
+		salariuBaza float32
+		comision    float32
+		email       string
+		IDAdresa    int
+	)
+
+	rows, err := client.db.Query(
+		"SELECT CodVanzator, Nume, Prenume, SalariuBaza, Comision, Email, IdAdresa FROM Vanzatori",
+	)
+	if err != nil {
+		return []repositories.Vanzator{}, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&codVanzator, &nume, &prenume, &salariuBaza, &comision, &email, &IDAdresa)
+		if err != nil {
+			return []repositories.Vanzator{}, err
+		}
+
+		vanzatori = append(
+			vanzatori,
+			repositories.Vanzator{
+				CodVanzator: codVanzator,
+				Nume:        nume,
+				Prenume:     prenume,
+				SalariuBaza: salariuBaza,
+				Comision:    comision,
+				Email:       email,
+				IDAdresa:    IDAdresa,
+			},
+		)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []repositories.Vanzator{}, err
+	}
+
+	return vanzatori, nil
+}
+
+func (client DBClient) GetSucursale() ([]repositories.Sucursala, error) {
+	var (
+		sucursale   []repositories.Sucursala
+		IDSucursala int
+		nume        string
+		IDAdresa    int
+	)
+
+	rows, err := client.db.Query(
+		"SELECT IdSucursala, NumeSucursala, IdAdresa FROM Sucursale",
+	)
+	if err != nil {
+		return []repositories.Sucursala{}, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&IDSucursala, &nume, &IDAdresa)
+		if err != nil {
+			return []repositories.Sucursala{}, err
+		}
+
+		sucursale = append(
+			sucursale,
+			repositories.Sucursala{
+				IDSucursala:   IDSucursala,
+				NumeSucursala: nume,
+				IDAdresa:      IDAdresa,
+			},
+		)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []repositories.Sucursala{}, err
+	}
+
+	return sucursale, nil
+}
+
+func (client DBClient) GetProiecte() ([]repositories.Proiect, error) {
+	var (
+		proiecte    []repositories.Proiect
+		IDProiect   string
+		nume        string
+		validDeLa   string
+		validPanaLa string
+		activ       bool
+	)
+
+	rows, err := client.db.Query(
+		"SELECT IDProiect, NumeProiect, ValidDeLa, ValidPanaLa, Activ FROM Proiecte",
+	)
+	if err != nil {
+		return []repositories.Proiect{}, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&IDProiect, &nume, &validDeLa, &validPanaLa, &activ)
+		if err != nil {
+			return []repositories.Proiect{}, err
+		}
+
+		proiecte = append(
+			proiecte,
+			repositories.Proiect{
+				IDProiect:   IDProiect,
+				NumeProiect: nume,
+				ValidDeLa:   validDeLa,
+				ValidPanaLa: validPanaLa,
+				Activ:       activ,
+			},
+		)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []repositories.Proiect{}, err
+	}
+
+	return proiecte, nil
 }
 
 //func (client DBClient) GetProductsByCategoryID(categoryID int) (repositories.ProductsJSON, error) {
