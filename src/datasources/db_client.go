@@ -6,6 +6,8 @@ import (
 	"time"
 
 	_ "github.com/sijms/go-ora"
+
+	"github.com/mariacalinoiu/salesApp/src/repositories"
 )
 
 type DBClient struct {
@@ -26,6 +28,154 @@ func GetClient(user string, password string, dbName string) DBClient {
 	db.SetMaxIdleConns(100)
 
 	return DBClient{db: db}
+}
+
+func (client DBClient) GetParteneri() ([]repositories.Partener, error) {
+	var (
+		parteneri []repositories.Partener
+		cod       string
+		nume      string
+		cui       string
+		email     string
+		IDAdresa  int
+	)
+
+	rows, err := client.db.Query(
+		"SELECT CodPartener, NumePartener, CUI, Email, IdAdresa FROM Parteneri",
+	)
+	if err != nil {
+		return []repositories.Partener{}, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&cod, &nume, &cui, &email, &IDAdresa)
+		if err != nil {
+			return []repositories.Partener{}, err
+		}
+
+		parteneri = append(
+			parteneri,
+			repositories.Partener{
+				CodPartener:  cod,
+				NumePartener: nume,
+				CUI:          cui,
+				Email:        email,
+				IDAdresa:     IDAdresa,
+			},
+		)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []repositories.Partener{}, err
+	}
+
+	return parteneri, nil
+}
+
+func (client DBClient) GetVanzari() ([]repositories.Vanzare, error) {
+	var (
+		vanzari     []repositories.Vanzare
+		id          int
+		codPartener string
+		status      string
+		data        string
+		dataLivrare string
+		total       float32
+		vat         float32
+		discount    float32
+		moneda      string
+		platit      float32
+		comentarii  string
+		codVanzator int
+		IDSucursala int
+	)
+
+	rows, err := client.db.Query(
+		"SELECT IDIntrare, CodPartener, Status, DataIntrare, DataLivrare, Total, VAT, Discount, Moneda, Platit, Comentarii, CodVanzator, IdSucursala FROM Vanzari",
+	)
+	if err != nil {
+		return []repositories.Vanzare{}, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&id, &codPartener, &status, &data, &dataLivrare, &total, &vat, &discount, &moneda, &platit, &comentarii, &codVanzator, &IDSucursala)
+		if err != nil {
+			return []repositories.Vanzare{}, err
+		}
+
+		vanzari = append(
+			vanzari,
+			repositories.Vanzare{
+				IDIntrare:   id,
+				CodPartener: codPartener,
+				Status:      status,
+				Data:        data,
+				DataLivrare: dataLivrare,
+				Total:       total,
+				VAT:         vat,
+				Discount:    discount,
+				Moneda:      moneda,
+				Platit:      platit,
+				Comentarii:  comentarii,
+				CodVanzator: codVanzator,
+				IDSucursala: IDSucursala,
+			},
+		)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []repositories.Vanzare{}, err
+	}
+
+	return vanzari, nil
+}
+
+func (client DBClient) GetArticol() ([]repositories.Articol, error) {
+	var (
+		articole        []repositories.Articol
+		cod             string
+		nume            string
+		codGrupa        int
+		cantitateStoc   int
+		IDUnitateMasura int
+	)
+
+	rows, err := client.db.Query(
+		"SELECT CodArticol, NumeArticol, CodGrupa, CantitateStoc, IdUnitateDeMasura FROM Articole",
+	)
+	if err != nil {
+		return []repositories.Articol{}, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&cod, &nume, &codGrupa, &cantitateStoc, &IDUnitateMasura)
+		if err != nil {
+			return []repositories.Articol{}, err
+		}
+
+		articole = append(
+			articole,
+			repositories.Articol{
+				CodArticol:      cod,
+				NumeArticol:     nume,
+				CodGrupa:        codGrupa,
+				CantitateStoc:   cantitateStoc,
+				IDUnitateMasura: IDUnitateMasura,
+			},
+		)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []repositories.Articol{}, err
+	}
+
+	return articole, nil
 }
 
 //func (client DBClient) GetProductsByCategoryID(categoryID int) (repositories.ProductsJSON, error) {

@@ -13,7 +13,7 @@ type (
 		IDIntrare   int     `json:"IDIntrare"`
 		CodPartener string  `json:"CodPartener"`
 		Status      string  `json:"Status"`
-		DataIntrare string  `json:"DataIntrare"`
+		Data        string  `json:"Data"`
 		DataLivrare string  `json:"DataLivrare"`
 		Total       float32 `json:"Total"`
 		VAT         float32 `json:"VAT"`
@@ -26,24 +26,44 @@ type (
 	}
 
 	LinieVanzare struct {
-		IDIntrare   int     `json:"IDIntrare"`
-		NumarLinie  int     `json:"NumarLinie"`
-		CodArticol  string  `json:"CodArticol"`
-		Cantitate   int     `json:"Cantitate"`
-		Pret        float32 `json:"Pret"`
-		Discount    float64 `json:"Discount"`
-		VAT         float64 `json:"VAT"`
-		TotalLinie  float64 `json:"TotalLinie"`
-		NumeProiect string  `json:"NumeProiect"`
+		IDIntrare  int     `json:"IDIntrare"`
+		NumarLinie int     `json:"NumarLinie"`
+		CodArticol string  `json:"CodArticol"`
+		Cantitate  float32 `json:"Cantitate"`
+		Pret       float32 `json:"Pret"`
+		Discount   float32 `json:"Discount"`
+		VAT        float32 `json:"VAT"`
+		TotalLinie float32 `json:"TotalLinie"`
+		IDProiect  string  `json:"IDProiect"`
+	}
+
+	Proiect struct {
+		IDProiect   string `json:"IDProiect"`
+		NumeProiect string `json:"NumeProiect"`
+		ValidDeLa   string `json:"ValidDeLa"`
+		ValidPanaLa string `json:"ValidPanaLa"`
+		Activ       bool   `json:"Activ"`
 	}
 
 	Articol struct {
-		CodArticol    string `json:"CodArticol"`
-		NumeArticol   string `json:"NumeArticol"`
-		CodGrupa      int    `json:"CodGrupa"`
-		CantitateStoc int    `json:"CantitateStoc"`
-		UnitateMasura string `json:"UnitateMasura"`
-		Grupa         string `json:"Grupa"`
+		CodArticol      string `json:"CodArticol"`
+		NumeArticol     string `json:"NumeArticol"`
+		CodGrupa        int    `json:"CodGrupa"`
+		CantitateStoc   int    `json:"CantitateStoc"`
+		IDUnitateMasura int    `json:"IDUnitateMasura"`
+	}
+
+	GrupaArticole struct {
+		CodGrupa  int `json:"CodGrupa"`
+		NumeGrupa int `json:"NumeGrupa"`
+	}
+
+	UnitateDeMasura struct {
+		IDUnitateMasura     int     `json:"IDUnitateMasura"`
+		NumeUnitateDeMasura string  `json:"NumeUnitateDeMasura"`
+		Inaltime            float32 `json:"Inaltime"`
+		Latime              float32 `json:"Latime"`
+		Lungime             float32 `json:"Lungime"`
 	}
 
 	Sucursala struct {

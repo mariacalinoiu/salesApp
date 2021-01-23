@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/mariacalinoiu/salesApp/src/datasources"
-	"github.com/mariacalinoiu/salesApp/src/handlers"
+	//"github.com/mariacalinoiu/salesApp/src/handlers"
 )
 
 type server struct {
@@ -55,36 +55,36 @@ func newServer(db datasources.DBClient, options ...option) *server {
 
 	s.mux = http.NewServeMux()
 
-	s.mux.HandleFunc("/departments",
-		func(w http.ResponseWriter, r *http.Request) {
-			handlers.HandleDepartments(w, r, db, s.logger)
-		},
-	)
-	s.mux.HandleFunc("/categories",
-		func(w http.ResponseWriter, r *http.Request) {
-			handlers.HandleCategories(w, r, db, s.logger)
-		},
-	)
-	s.mux.HandleFunc("/products",
-		func(w http.ResponseWriter, r *http.Request) {
-			handlers.HandleProducts(w, r, db, s.logger)
-		},
-	)
-	s.mux.HandleFunc("/orders",
-		func(w http.ResponseWriter, r *http.Request) {
-			handlers.HandleOrdersAdd(w, r, db, s.logger)
-		},
-	)
-	s.mux.HandleFunc("/orders/delete",
-		func(w http.ResponseWriter, r *http.Request) {
-			handlers.HandleOrdersDelete(w, r, db, s.logger)
-		},
-	)
-	s.mux.HandleFunc("/orders/update",
-		func(w http.ResponseWriter, r *http.Request) {
-			handlers.HandleOrdersUpdate(w, r, db, s.logger)
-		},
-	)
+	//s.mux.HandleFunc("/departments",
+	//	func(w http.ResponseWriter, r *http.Request) {
+	//		handlers.HandleDepartments(w, r, db, s.logger)
+	//	},
+	//)
+	//s.mux.HandleFunc("/categories",
+	//	func(w http.ResponseWriter, r *http.Request) {
+	//		handlers.HandleCategories(w, r, db, s.logger)
+	//	},
+	//)
+	//s.mux.HandleFunc("/products",
+	//	func(w http.ResponseWriter, r *http.Request) {
+	//		handlers.HandleProducts(w, r, db, s.logger)
+	//	},
+	//)
+	//s.mux.HandleFunc("/orders",
+	//	func(w http.ResponseWriter, r *http.Request) {
+	//		handlers.HandleOrdersAdd(w, r, db, s.logger)
+	//	},
+	//)
+	//s.mux.HandleFunc("/orders/delete",
+	//	func(w http.ResponseWriter, r *http.Request) {
+	//		handlers.HandleOrdersDelete(w, r, db, s.logger)
+	//	},
+	//)
+	//s.mux.HandleFunc("/orders/update",
+	//	func(w http.ResponseWriter, r *http.Request) {
+	//		handlers.HandleOrdersUpdate(w, r, db, s.logger)
+	//	},
+	//)
 	s.mux.HandleFunc("/cors",
 		func(w http.ResponseWriter, r *http.Request) {
 			if origin := r.Header.Get("Origin"); origin != "" {
