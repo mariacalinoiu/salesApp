@@ -14,10 +14,10 @@ type DBClient struct {
 	db *sql.DB
 }
 
-func GetClient(user string, password string, dbName string) DBClient {
+func GetClient(user string, password string, hostname string, dbName string) DBClient {
 	db, err := sql.Open(
 		"oracle",
-		fmt.Sprintf("oracle://%s:%s@/%s", user, password, dbName),
+		fmt.Sprintf("oracle://%s:%s@%s/%s", user, password, hostname, dbName),
 	)
 	if err != nil {
 		panic(err)

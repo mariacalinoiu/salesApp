@@ -101,7 +101,7 @@ func newServer(db datasources.DBClient, options ...option) *server {
 
 func main() {
 	logger := log.New(os.Stdout, "", 0)
-	db := datasources.GetClient("user", "password", "salesapp")
+	db := datasources.GetClient("user", "password", "hostname", "salesapp")
 	hs := setup(logger, db)
 
 	logger.Printf("Listening on http://localhost%s\n", hs.Addr)
