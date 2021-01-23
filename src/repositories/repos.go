@@ -42,7 +42,7 @@ type (
 		NumeProiect string `json:"NumeProiect"`
 		ValidDeLa   string `json:"ValidDeLa"`
 		ValidPanaLa string `json:"ValidPanaLa"`
-		Activ       bool   `json:"Activ"`
+		Activ       string `json:"Activ"`
 	}
 
 	Articol struct {
