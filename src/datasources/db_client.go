@@ -326,7 +326,7 @@ func (client DBClient) GetProiecte() ([]repositories.Proiect, error) {
 		nume        string
 		validDeLa   string
 		validPanaLa string
-		activ       bool
+		activ       string
 	)
 
 	rows, err := client.db.Query(
