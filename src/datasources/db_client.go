@@ -27,6 +27,11 @@ func GetClient(user string, password string, hostname string, dbName string) DBC
 	db.SetMaxOpenConns(100)
 	db.SetMaxIdleConns(100)
 
+	rows, err := db.Query(
+		"SELECT table FROM all_tables",
+	)
+	fmt.Printf("%+v", rows)
+
 	return DBClient{db: db}
 }
 
@@ -41,7 +46,7 @@ func (client DBClient) GetParteneri() ([]repositories.Partener, error) {
 	)
 
 	rows, err := client.db.Query(
-		"SELECT CodPartener, NumePartener, CUI, Email, IdAdresa FROM Parteneri",
+		"SELECT CodPartener, NumePartener, CUI, Email, IdAdresa FROM SCHEMA_PROIECT_OLDB.Parteneri",
 	)
 	if err != nil {
 		return []repositories.Partener{}, err
