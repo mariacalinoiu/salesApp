@@ -74,7 +74,13 @@ func (client DBClient) GetParteneri() ([]repositories.Partener, error) {
 	return parteneri, nil
 }
 
-func (client DBClient) InsertPartener(partener repositories.Partener) error {
+func (client DBClient) InsertPartener(partenerAdresa repositories.InsertPartener) error {
+	IDAdresa, err := client.InsertAdresa(partenerAdresa.Adresa)
+	if err != nil {
+		return err
+	}
+
+	partener := partenerAdresa.Partener
 	stmt, err := client.db.Prepare(`INSERT INTO "Parteneri"("CodPartener", "NumePartener", "CUI", "EMail", "IdAdresa") VALUES(:1, :2, :3, :4, :5)`)
 	if err != nil {
 		return err
@@ -85,10 +91,14 @@ func (client DBClient) InsertPartener(partener repositories.Partener) error {
 		partener.NumePartener,
 		partener.CUI,
 		partener.Email,
-		partener.IDAdresa,
+		IDAdresa,
 	)
 
 	return err
+}
+
+func (client DBClient) InsertAdresa(adresa repositories.Adresa) (int, error) {
+	return 1, nil
 }
 
 func (client DBClient) GetVanzari() ([]repositories.Vanzare, error) {

@@ -63,24 +63,24 @@ func getParteneri(db datasources.DBClient, logger *log.Logger) ([]byte, int, err
 	return response, http.StatusOK, nil
 }
 
-func extractPartenerParams(r *http.Request) (repositories.Partener, error) {
-	var unmarshalledPartener repositories.Partener
+func extractPartenerParams(r *http.Request) (repositories.InsertPartener, error) {
+	var unmarshalledPartenerAdresa repositories.InsertPartener
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return repositories.Partener{}, err
+		return repositories.InsertPartener{}, err
 	}
 
-	err = json.Unmarshal(body, &unmarshalledPartener)
+	err = json.Unmarshal(body, &unmarshalledPartenerAdresa)
 	if err != nil {
-		return repositories.Partener{}, err
+		return repositories.InsertPartener{}, err
 	}
 
-	return unmarshalledPartener, nil
+	return unmarshalledPartenerAdresa, nil
 }
 
 func insertPartener(r *http.Request, db datasources.DBClient, logger *log.Logger, update bool) (int, error) {
-	partener, err := extractPartenerParams(r)
+	partenerAdresa, err := extractPartenerParams(r)
 	if err != nil {
 		return http.StatusBadRequest, errors.New("partener information sent on request body does not match required format")
 	}
@@ -88,7 +88,7 @@ func insertPartener(r *http.Request, db datasources.DBClient, logger *log.Logger
 	//if update {
 	//	err = db.EditPartener(proiect)
 	//} else {
-	err = db.InsertPartener(partener)
+	err = db.InsertPartener(partenerAdresa)
 	//}
 	if err != nil {
 		logger.Printf("Internal error: %s", err.Error())
