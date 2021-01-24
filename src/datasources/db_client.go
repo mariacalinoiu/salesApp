@@ -351,6 +351,30 @@ func (client DBClient) GetVanzatori() ([]repositories.Vanzator, error) {
 	return vanzatori, nil
 }
 
+func (client DBClient) InsertVanzator(vanzatorAdresa repositories.InsertVanzator) error {
+	IDAdresa, err := client.InsertAdresa(vanzatorAdresa.Adresa)
+	if err != nil {
+		return err
+	}
+
+	vanzator := vanzatorAdresa.Vanzator
+	stmt, err := client.db.Prepare(`INSERT INTO "Vanzatori"("Nume", "Prenume", "SalariuBaza", "Comision", "EMail", "IdAdresa") VALUES(:1, :2, :3, :4, :5, :6)`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(
+		vanzator.Nume,
+		vanzator.Prenume,
+		vanzator.SalariuBaza,
+		vanzator.Comision,
+		vanzator.Email,
+		IDAdresa,
+	)
+
+	return err
+}
+
 func (client DBClient) GetSucursale() ([]repositories.Sucursala, error) {
 	var (
 		sucursale   []repositories.Sucursala
@@ -389,6 +413,26 @@ func (client DBClient) GetSucursale() ([]repositories.Sucursala, error) {
 	}
 
 	return sucursale, nil
+}
+
+func (client DBClient) InsertSucursala(sucursalaAdresa repositories.InsertSucursala) error {
+	IDAdresa, err := client.InsertAdresa(sucursalaAdresa.Adresa)
+	if err != nil {
+		return err
+	}
+
+	sucursala := sucursalaAdresa.Sucursala
+	stmt, err := client.db.Prepare(`INSERT INTO "Sucursale"("NumeSucursala", "IdAdresa") VALUES(:1, :2)`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(
+		sucursala.NumeSucursala,
+		IDAdresa,
+	)
+
+	return err
 }
 
 func (client DBClient) GetProiecte() ([]repositories.Proiect, error) {

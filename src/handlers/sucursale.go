@@ -3,10 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"log"
 	"net/http"
 
 	"salesApp/src/datasources"
+	"salesApp/src/repositories"
 )
 
 func HandleSucursale(w http.ResponseWriter, r *http.Request, db datasources.DBClient, logger *log.Logger) {
@@ -22,8 +24,8 @@ func HandleSucursale(w http.ResponseWriter, r *http.Request, db datasources.DBCl
 		w.Header().Set("Access-Control-Expose-Headers", "Authorization")
 	case http.MethodGet:
 		response, status, err = getSucursale(db, logger)
-	//case http.MethodPost, http.MethodPut:
-	//	response, status, err = insertSucursale(r, db, logger, r.Method == http.MethodPut)
+	case http.MethodPost, http.MethodPut:
+		status, err = insertSucursala(r, db, logger, r.Method == http.MethodPut)
 	//case http.MethodDelete:
 	//	status, err = deleteOrder(r, db, logger)
 	default:
@@ -36,6 +38,10 @@ func HandleSucursale(w http.ResponseWriter, r *http.Request, db datasources.DBCl
 		http.Error(w, err.Error(), status)
 
 		return
+	}
+
+	if response == nil {
+		response = []byte("ok")
 	}
 
 	_, err = w.Write(response)
@@ -64,4 +70,39 @@ func getSucursale(db datasources.DBClient, logger *log.Logger) ([]byte, int, err
 	}
 
 	return response, http.StatusOK, nil
+}
+
+func extractSucursalaParams(r *http.Request) (repositories.InsertSucursala, error) {
+	var unmarshalledSucursala repositories.InsertSucursala
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return repositories.InsertSucursala{}, err
+	}
+
+	err = json.Unmarshal(body, &unmarshalledSucursala)
+	if err != nil {
+		return repositories.InsertSucursala{}, err
+	}
+
+	return unmarshalledSucursala, nil
+}
+
+func insertSucursala(r *http.Request, db datasources.DBClient, logger *log.Logger, update bool) (int, error) {
+	sucursala, err := extractSucursalaParams(r)
+	if err != nil {
+		return http.StatusBadRequest, errors.New("sucursala information sent on request body does not match required format")
+	}
+
+	//if update {
+	//	err = db.EditOrder(articol)
+	//} else {
+	err = db.InsertSucursala(sucursala)
+	//}
+	if err != nil {
+		logger.Printf("Internal error: %s", err.Error())
+		return http.StatusInternalServerError, errors.New("could not save sucursala")
+	}
+
+	return http.StatusOK, nil
 }

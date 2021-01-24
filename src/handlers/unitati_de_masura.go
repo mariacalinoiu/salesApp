@@ -34,6 +34,10 @@ func HandleUnitatiDeMasura(w http.ResponseWriter, r *http.Request, db datasource
 		return
 	}
 
+	if response == nil {
+		response = []byte("ok")
+	}
+
 	_, err = w.Write(response)
 	if err != nil {
 		status = http.StatusInternalServerError

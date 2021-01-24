@@ -40,6 +40,10 @@ func HandleParteneri(w http.ResponseWriter, r *http.Request, db datasources.DBCl
 		return
 	}
 
+	if response == nil {
+		response = []byte("ok")
+	}
+
 	_, err = w.Write(response)
 	if err != nil {
 		status = http.StatusInternalServerError

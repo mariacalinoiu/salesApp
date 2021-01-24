@@ -40,15 +40,17 @@ func HandleArticole(w http.ResponseWriter, r *http.Request, db datasources.DBCli
 		return
 	}
 
-	if response != nil {
-		_, err = w.Write(response)
-		if err != nil {
-			status = http.StatusInternalServerError
-			logger.Printf("Error: %s; Status: %d %s", err.Error(), status, http.StatusText(status))
-			http.Error(w, err.Error(), status)
+	if response == nil {
+		response = []byte("ok")
+	}
 
-			return
-		}
+	_, err = w.Write(response)
+	if err != nil {
+		status = http.StatusInternalServerError
+		logger.Printf("Error: %s; Status: %d %s", err.Error(), status, http.StatusText(status))
+		http.Error(w, err.Error(), status)
+
+		return
 	}
 
 	status = http.StatusOK

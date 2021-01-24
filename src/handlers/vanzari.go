@@ -38,6 +38,10 @@ func HandleVanzari(w http.ResponseWriter, r *http.Request, db datasources.DBClie
 		return
 	}
 
+	if response == nil {
+		response = []byte("ok")
+	}
+
 	_, err = w.Write(response)
 	if err != nil {
 		status = http.StatusInternalServerError

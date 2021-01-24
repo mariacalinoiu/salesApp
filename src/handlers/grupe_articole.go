@@ -34,6 +34,10 @@ func HandleGrupeArticole(w http.ResponseWriter, r *http.Request, db datasources.
 		return
 	}
 
+	if response == nil {
+		response = []byte("ok")
+	}
+
 	_, err = w.Write(response)
 	if err != nil {
 		status = http.StatusInternalServerError
