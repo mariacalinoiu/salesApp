@@ -15,6 +15,11 @@ func HandleVanzatori(w http.ResponseWriter, r *http.Request, db datasources.DBCl
 	var err error
 
 	switch r.Method {
+	case http.MethodOptions:
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, Authorization, X-CSRF-Token")
+		w.Header().Set("Access-Control-Expose-Headers", "Authorization")
 	case http.MethodGet:
 		response, status, err = getVanzatori(db, logger)
 	//case http.MethodPost, http.MethodPut:
