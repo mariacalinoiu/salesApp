@@ -118,7 +118,7 @@ func (client DBClient) InsertAdresa(adresa repositories.Adresa) (int, error) {
 	}
 
 	var IDAdresa int
-	rows, err := client.db.Query(`SELECT MAX("IdAdresa") FROM "Adrese"`)
+	rows, err := client.db.Query(`SELECT NVL(MAX("IdAdresa"), 0) FROM "Adrese"`)
 	if err != nil {
 		return -1, err
 	}
@@ -215,7 +215,7 @@ func (client DBClient) InsertVanzare(vanzareLinii repositories.InsertVanzare) er
 	}
 
 	var IDIntrare int
-	rows, err := client.db.Query(`SELECT MAX("IdIntrare") FROM "Vanzari"`)
+	rows, err := client.db.Query(`SELECT NVL(MAX("IdIntrare"), 0) FROM "Vanzari"`)
 	if err != nil {
 		return err
 	}
@@ -290,7 +290,7 @@ func (client DBClient) GetLiniiVanzare(IDIntrareVanzari int) ([]repositories.Lin
 func (client DBClient) InsertLinieVanzare(linie repositories.LinieVanzare) error {
 	var nrLinieVanzare int
 	rows, err := client.db.Query(
-		`SELECT MAX("NumarLinie") FROM "LiniiVanzari" WHERE "IdIntrare" = :1`,
+		`SELECT NVL(MAX("NumarLinie"), 0) FROM "LiniiVanzari" WHERE "IdIntrare" = :1`,
 		linie.IDIntrare,
 	)
 	if err != nil {
