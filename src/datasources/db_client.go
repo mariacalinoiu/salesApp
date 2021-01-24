@@ -249,7 +249,7 @@ func (client DBClient) GetArticole() ([]repositories.Articol, error) {
 }
 
 func (client DBClient) InsertArticol(articol repositories.Articol) error {
-	stmt, err := client.db.Prepare(`INSERT INTO "Articole"("CodArticol", "NumeArticol", "CodGrupa", "CantitateStoc", "IdUnitateMasura") VALUES(:1, :2, :3, :4, :5)`)
+	stmt, err := client.db.Prepare(`INSERT INTO "Articole"("CodArticol", "NumeArticol", "CodGrupa", "CantitateStoc", "IdUnitateDeMasura") VALUES(:1, :2, :3, :4, :5)`)
 	if err != nil {
 		return err
 	}
@@ -278,7 +278,7 @@ func (client DBClient) GetVanzatori() ([]repositories.Vanzator, error) {
 	)
 
 	rows, err := client.db.Query(
-		`SELECT "CodVanzator", "Nume", "Prenume", "SalariuBaza", "Comision", "Email", "IdAdresa" FROM "Vanzatori"`,
+		`SELECT "CodVanzator", "Nume", "Prenume", "SalariuBaza", "Comision", "EMail", "IdAdresa" FROM "Vanzatori"`,
 	)
 	if err != nil {
 		return []repositories.Vanzator{}, err
@@ -364,7 +364,7 @@ func (client DBClient) GetProiecte() ([]repositories.Proiect, error) {
 	)
 
 	rows, err := client.db.Query(
-		`SELECT "IDProiect", "NumeProiect", "ValidDeLa", "ValidPanaLa", "Activ" FROM "Proiecte"`,
+		`SELECT "IdProiect", "NumeProiect", "ValidDeLa", "ValidPanaLa", "Activ" FROM "Proiecte"`,
 	)
 	if err != nil {
 		return []repositories.Proiect{}, err
@@ -422,7 +422,7 @@ func (client DBClient) GetGrupeArticole() ([]repositories.GrupaArticole, error) 
 	)
 
 	rows, err := client.db.Query(
-		`SELECT "CodGrupa", "NumeGrupa" FROM "GrupaArticole"`,
+		`SELECT * FROM "GrupaArticole"`,
 	)
 	if err != nil {
 		return []repositories.GrupaArticole{}, err
@@ -463,7 +463,7 @@ func (client DBClient) GetUnitatiDeMasura() ([]repositories.UnitateDeMasura, err
 	)
 
 	rows, err := client.db.Query(
-		`SELECT "IdUnitateMasura", "NumeUnitateDeMasura", "Inaltime", "Latime", "Lungime" FROM "UnitatiDeMasura"`,
+		`SELECT "IdUnitateDeMasura", "NumeUnitateDeMasura", "Inaltime", "Latime", "Lungime" FROM "UnitatiDeMasura"`,
 	)
 	if err != nil {
 		return []repositories.UnitateDeMasura{}, err

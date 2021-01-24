@@ -82,7 +82,7 @@ func extractPartenerParams(r *http.Request) (repositories.Partener, error) {
 func insertPartener(r *http.Request, db datasources.DBClient, logger *log.Logger, update bool) (int, error) {
 	partener, err := extractPartenerParams(r)
 	if err != nil {
-		return http.StatusBadRequest, errors.New("order information sent on request body does not match required format")
+		return http.StatusBadRequest, errors.New("partener information sent on request body does not match required format")
 	}
 
 	//if update {
@@ -92,7 +92,7 @@ func insertPartener(r *http.Request, db datasources.DBClient, logger *log.Logger
 	//}
 	if err != nil {
 		logger.Printf("Internal error: %s", err.Error())
-		return http.StatusInternalServerError, errors.New("could not save articol")
+		return http.StatusInternalServerError, errors.New("could not save partener")
 	}
 
 	return http.StatusOK, nil
