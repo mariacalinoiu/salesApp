@@ -231,6 +231,23 @@ func (client DBClient) GetArticole() ([]repositories.Articol, error) {
 	return articole, nil
 }
 
+func (client DBClient) InsertArticol(articol repositories.Articol) error {
+	stmt, err := client.db.Prepare("INSERT INTO Articole(CodArticol, NumeArticol, CodGrupa, CantitateStoc, IdUnitateMasura) VALUES(?, ?, ?, ?, ?)")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(
+		articol.CodArticol,
+		articol.NumeArticol,
+		articol.CodGrupa,
+		articol.CantitateStoc,
+		articol.IDUnitateMasura,
+	)
+
+	return err
+}
+
 func (client DBClient) GetVanzatori() ([]repositories.Vanzator, error) {
 	var (
 		vanzatori   []repositories.Vanzator
@@ -361,6 +378,88 @@ func (client DBClient) GetProiecte() ([]repositories.Proiect, error) {
 	}
 
 	return proiecte, nil
+}
+
+func (client DBClient) GetGrupeArticole() ([]repositories.GrupaArticole, error) {
+	var (
+		grupe []repositories.GrupaArticole
+		cod   int
+		nume  string
+	)
+
+	rows, err := client.db.Query(
+		"SELECT CodGrupa, NumeGrupa FROM GrupaArticole",
+	)
+	if err != nil {
+		return []repositories.GrupaArticole{}, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&cod, &nume)
+		if err != nil {
+			return []repositories.GrupaArticole{}, err
+		}
+
+		grupe = append(
+			grupe,
+			repositories.GrupaArticole{
+				CodGrupa:  cod,
+				NumeGrupa: nume,
+			},
+		)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []repositories.GrupaArticole{}, err
+	}
+
+	return grupe, nil
+}
+
+func (client DBClient) GetUnitatiDeMasura() ([]repositories.UnitateDeMasura, error) {
+	var (
+		um       []repositories.UnitateDeMasura
+		id       int
+		nume     string
+		inaltime float32
+		latime   float32
+		lungime  float32
+	)
+
+	rows, err := client.db.Query(
+		"SELECT IdUnitateMasura, NumeUnitateDeMasura, Inaltime, Latime, Lungime FROM UnitatiDeMasura",
+	)
+	if err != nil {
+		return []repositories.UnitateDeMasura{}, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&id, &nume, &inaltime, &latime, &lungime)
+		if err != nil {
+			return []repositories.UnitateDeMasura{}, err
+		}
+
+		um = append(
+			um,
+			repositories.UnitateDeMasura{
+				IDUnitateMasura:     id,
+				NumeUnitateDeMasura: nume,
+				Inaltime:            inaltime,
+				Latime:              latime,
+				Lungime:             lungime,
+			},
+		)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []repositories.UnitateDeMasura{}, err
+	}
+
+	return um, nil
 }
 
 //func (client DBClient) GetProductsByCategoryID(categoryID int) (repositories.ProductsJSON, error) {

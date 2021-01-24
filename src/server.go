@@ -85,6 +85,16 @@ func newServer(db datasources.DBClient, options ...option) *server {
 			handlers.HandleProiecte(w, r, db, s.logger)
 		},
 	)
+	s.mux.HandleFunc("/grupeArticole",
+		func(w http.ResponseWriter, r *http.Request) {
+			handlers.HandleGrupeArticole(w, r, db, s.logger)
+		},
+	)
+	s.mux.HandleFunc("/um",
+		func(w http.ResponseWriter, r *http.Request) {
+			handlers.HandleUnitatiDeMasura(w, r, db, s.logger)
+		},
+	)
 	s.mux.HandleFunc("/cors",
 		func(w http.ResponseWriter, r *http.Request) {
 			if origin := r.Header.Get("Origin"); origin != "" {
