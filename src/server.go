@@ -75,6 +75,11 @@ func newServer(db datasources.DBClient, options ...option) *server {
 			handlers.HandleVanzari(w, r, db, s.logger)
 		},
 	)
+	s.mux.HandleFunc("/liniiVanzari",
+		func(w http.ResponseWriter, r *http.Request) {
+			handlers.HandleLiniiVanzari(w, r, db, s.logger)
+		},
+	)
 	s.mux.HandleFunc("/sucursale",
 		func(w http.ResponseWriter, r *http.Request) {
 			handlers.HandleSucursale(w, r, db, s.logger)
