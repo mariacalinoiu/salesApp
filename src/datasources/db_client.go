@@ -75,7 +75,7 @@ func (client DBClient) GetParteneri() ([]repositories.Partener, error) {
 }
 
 func (client DBClient) InsertPartener(partener repositories.Partener) error {
-	stmt, err := client.db.Prepare("INSERT INTO Parteneri(CodPartener, NumePartener, CUI, Email, IdAdresa) VALUES(?, ?, ?, ?, ?)")
+	stmt, err := client.db.Prepare(`INSERT INTO "Parteneri"("CodPartener", "NumePartener", "CUI", "EMail", "IdAdresa") VALUES(:1, :2, :3, :4, :5)`)
 	if err != nil {
 		return err
 	}
@@ -110,7 +110,7 @@ func (client DBClient) GetVanzari() ([]repositories.Vanzare, error) {
 	)
 
 	rows, err := client.db.Query(
-		"SELECT IdIntrare, CodPartener, Status, DataIntrare, DataLivrare, Total, Vat, Discount, Moneda, Platit, Comentarii, CodVanzator, IdSucursala FROM Vanzari",
+		`SELECT "IdIntrare", "CodPartener", "Status", "DataIntrare", "DataLivrare", "Total", "Vat", "Discount", "Moneda", "Platit", "Comentarii", "CodVanzator", "IdSucursala" FROM "Vanzari"`,
 	)
 	if err != nil {
 		return []repositories.Vanzare{}, err
@@ -166,7 +166,7 @@ func (client DBClient) GetLiniiVanzare(IDIntrareVanzari int) ([]repositories.Lin
 	)
 
 	rows, err := client.db.Query(
-		"SELECT IdIntrare, NumarLinie, CodArticol, Cantitate, Pret, Discount, Vat, TotalLinie, IdProiect FROM LiniiVanzari WHERE IdIntrare = ?",
+		`SELECT "IdIntrare", "NumarLinie", "CodArticol", "Cantitate", "Pret", "Discount", "Vat", "TotalLinie", "IdProiect" FROM "LiniiVanzari" WHERE "IdIntrare" = :1`,
 		IDIntrareVanzari,
 	)
 	if err != nil {
@@ -215,7 +215,7 @@ func (client DBClient) GetArticole() ([]repositories.Articol, error) {
 	)
 
 	rows, err := client.db.Query(
-		"SELECT CodArticol, NumeArticol, CodGrupa, CantitateStoc, IdUnitateDeMasura FROM Articole",
+		`SELECT "CodArticol", "NumeArticol", "CodGrupa", "CantitateStoc", "IdUnitateDeMasura" FROM "Articole"`,
 	)
 	if err != nil {
 		return []repositories.Articol{}, err
@@ -249,7 +249,7 @@ func (client DBClient) GetArticole() ([]repositories.Articol, error) {
 }
 
 func (client DBClient) InsertArticol(articol repositories.Articol) error {
-	stmt, err := client.db.Prepare("INSERT INTO Articole(CodArticol, NumeArticol, CodGrupa, CantitateStoc, IdUnitateMasura) VALUES(?, ?, ?, ?, ?)")
+	stmt, err := client.db.Prepare(`INSERT INTO "Articole"("CodArticol", "NumeArticol", "CodGrupa", "CantitateStoc", "IdUnitateMasura") VALUES(:1, :2, :3, :4, :5)`)
 	if err != nil {
 		return err
 	}
@@ -278,7 +278,7 @@ func (client DBClient) GetVanzatori() ([]repositories.Vanzator, error) {
 	)
 
 	rows, err := client.db.Query(
-		"SELECT CodVanzator, Nume, Prenume, SalariuBaza, Comision, Email, IdAdresa FROM Vanzatori",
+		`SELECT "CodVanzator", "Nume", "Prenume", "SalariuBaza", "Comision", "Email", "IdAdresa" FROM "Vanzatori"`,
 	)
 	if err != nil {
 		return []repositories.Vanzator{}, err
@@ -322,7 +322,7 @@ func (client DBClient) GetSucursale() ([]repositories.Sucursala, error) {
 	)
 
 	rows, err := client.db.Query(
-		"SELECT IdSucursala, NumeSucursala, IdAdresa FROM Sucursale",
+		`SELECT "IdSucursala", "NumeSucursala", "IdAdresa" FROM "Sucursale"`,
 	)
 	if err != nil {
 		return []repositories.Sucursala{}, err
@@ -364,7 +364,7 @@ func (client DBClient) GetProiecte() ([]repositories.Proiect, error) {
 	)
 
 	rows, err := client.db.Query(
-		"SELECT IDProiect, NumeProiect, ValidDeLa, ValidPanaLa, Activ FROM Proiecte",
+		`SELECT "IDProiect", "NumeProiect", "ValidDeLa", "ValidPanaLa", "Activ" FROM "Proiecte"`,
 	)
 	if err != nil {
 		return []repositories.Proiect{}, err
@@ -398,7 +398,7 @@ func (client DBClient) GetProiecte() ([]repositories.Proiect, error) {
 }
 
 func (client DBClient) InsertProiect(proiect repositories.Proiect) error {
-	stmt, err := client.db.Prepare("INSERT INTO Proiecte(IdProiect, NumeProiect, ValidDeLa, ValidPanaLa, Activ) VALUES(?, ?, TO_DATE(?, 'MM/DD/YYYY'), TO_DATE(?, 'MM/DD/YYYY'), ?)")
+	stmt, err := client.db.Prepare(`INSERT INTO "Proiecte"("IdProiect", "NumeProiect", "ValidDeLa", "ValidPanaLa", "Activ") VALUES(:1, :2, TO_DATE(:3, 'MM/DD/YYYY'), TO_DATE(:4, 'MM/DD/YYYY'), :5)`)
 	if err != nil {
 		return err
 	}
@@ -422,7 +422,7 @@ func (client DBClient) GetGrupeArticole() ([]repositories.GrupaArticole, error) 
 	)
 
 	rows, err := client.db.Query(
-		"SELECT CodGrupa, NumeGrupa FROM GrupaArticole",
+		`SELECT "CodGrupa", "NumeGrupa" FROM "GrupaArticole"`,
 	)
 	if err != nil {
 		return []repositories.GrupaArticole{}, err
@@ -463,7 +463,7 @@ func (client DBClient) GetUnitatiDeMasura() ([]repositories.UnitateDeMasura, err
 	)
 
 	rows, err := client.db.Query(
-		"SELECT IdUnitateMasura, NumeUnitateDeMasura, Inaltime, Latime, Lungime FROM UnitatiDeMasura",
+		`SELECT "IdUnitateMasura", "NumeUnitateDeMasura", "Inaltime", "Latime", "Lungime" FROM "UnitatiDeMasura"`,
 	)
 	if err != nil {
 		return []repositories.UnitateDeMasura{}, err
