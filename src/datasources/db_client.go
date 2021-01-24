@@ -41,7 +41,7 @@ func (client DBClient) GetParteneri() ([]repositories.Partener, error) {
 	)
 
 	rows, err := client.db.Query(
-		"SELECT CodPartener, NumePartener, CUI, Email, IdAdresa FROM PARTENERI",
+		`SELECT CodPartener, NumePartener, CUI, Email, IdAdresa FROM "Parteneri"`,
 	)
 	if err != nil {
 		return []repositories.Partener{}, err
