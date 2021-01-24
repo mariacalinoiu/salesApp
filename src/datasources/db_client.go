@@ -98,7 +98,35 @@ func (client DBClient) InsertPartener(partenerAdresa repositories.InsertPartener
 }
 
 func (client DBClient) InsertAdresa(adresa repositories.Adresa) (int, error) {
-	return 1, nil
+	stmt, err := client.db.Prepare(`INSERT INTO "Adrese"("NumeAdresa", "Oras", "Judet", "Sector", "Strada", "Numar", "Bloc", "Etaj") VALUES(:1, :2, :3, :4, :5, :6, :7, :8)`)
+	if err != nil {
+		return -1, err
+	}
+
+	_, err = stmt.Exec(
+		adresa.NumeAdresa,
+		adresa.Oras,
+		adresa.Judet,
+		adresa.Sector,
+		adresa.Strada,
+		adresa.Numar,
+		adresa.Bloc,
+		adresa.Etaj,
+	)
+	if err != nil {
+		return -1, err
+	}
+
+	var IDAdresa int
+	rows, err := client.db.Query(`SELECT MAX("IdAdresa") FROM "Adrese"`)
+	if err != nil {
+		return -1, err
+	}
+	defer rows.Close()
+	rows.Next()
+	err = rows.Scan(&IDAdresa)
+
+	return IDAdresa, err
 }
 
 func (client DBClient) GetVanzari() ([]repositories.Vanzare, error) {
