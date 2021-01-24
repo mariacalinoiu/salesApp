@@ -7,8 +7,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/mariacalinoiu/salesApp/src/datasources"
-	"github.com/mariacalinoiu/salesApp/src/repositories"
+	"salesApp/src/datasources"
+	"salesApp/src/repositories"
 )
 
 func HandleArticole(w http.ResponseWriter, r *http.Request, db datasources.DBClient, logger *log.Logger) {

@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/mariacalinoiu/salesApp/src/datasources"
+	"salesApp/src/datasources"
 )
 
 func HandleUnitatiDeMasura(w http.ResponseWriter, r *http.Request, db datasources.DBClient, logger *log.Logger) {

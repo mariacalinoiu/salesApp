@@ -9,8 +9,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/mariacalinoiu/salesApp/src/datasources"
-	"github.com/mariacalinoiu/salesApp/src/handlers"
+	"salesApp/src/datasources"
+	"salesApp/src/handlers"
 )
 
 type server struct {

@@ -7,7 +7,7 @@ import (
 
 	_ "github.com/sijms/go-ora"
 
-	"github.com/mariacalinoiu/salesApp/src/repositories"
+	"salesApp/src/repositories"
 )
 
 type DBClient struct {
