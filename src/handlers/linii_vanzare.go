@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"salesApp/src/datasources"
+	"salesApp/src/repositories"
 )
 
 func HandleLiniiVanzari(w http.ResponseWriter, r *http.Request, db datasources.DBClient, logger *log.Logger) {
@@ -40,7 +41,7 @@ func HandleLiniiVanzari(w http.ResponseWriter, r *http.Request, db datasources.D
 	}
 
 	if response == nil {
-		response = []byte("ok")
+		response, _ = json.Marshal(repositories.WasSuccess{Success: true})
 	}
 
 	_, err = w.Write(response)

@@ -108,4 +108,8 @@ type (
 		Sucursala Sucursala `json:"Sucursala"`
 		Adresa    Adresa    `json:"Adresa"`
 	}
+
+	WasSuccess struct {
+		Success bool `json:"success"`
+	}
 )

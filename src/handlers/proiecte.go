@@ -41,7 +41,7 @@ func HandleProiecte(w http.ResponseWriter, r *http.Request, db datasources.DBCli
 	}
 
 	if response == nil {
-		response = []byte("ok")
+		response, _ = json.Marshal(repositories.WasSuccess{Success: true})
 	}
 
 	_, err = w.Write(response)

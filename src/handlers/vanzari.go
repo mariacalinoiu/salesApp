@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"salesApp/src/datasources"
+	"salesApp/src/repositories"
 )
 
 func HandleVanzari(w http.ResponseWriter, r *http.Request, db datasources.DBClient, logger *log.Logger) {
@@ -39,7 +40,7 @@ func HandleVanzari(w http.ResponseWriter, r *http.Request, db datasources.DBClie
 	}
 
 	if response == nil {
-		response = []byte("ok")
+		response, _ = json.Marshal(repositories.WasSuccess{Success: true})
 	}
 
 	_, err = w.Write(response)
