@@ -109,6 +109,11 @@ type (
 		Adresa    Adresa    `json:"Adresa"`
 	}
 
+	InsertVanzare struct {
+		Vanzare      Vanzare        `json:"Vanzare"`
+		LiniiVanzari []LinieVanzare `json:"LiniiVanzare"`
+	}
+
 	WasSuccess struct {
 		Success bool `json:"success"`
 	}

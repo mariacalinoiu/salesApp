@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -23,8 +24,8 @@ func HandleVanzari(w http.ResponseWriter, r *http.Request, db datasources.DBClie
 		w.Header().Set("Access-Control-Expose-Headers", "Authorization")
 	case http.MethodGet:
 		response, status, err = getVanzari(db, logger)
-	//case http.MethodPost, http.MethodPut:
-	//	response, status, err = insertVanzari(r, db, logger, r.Method == http.MethodPut)
+	case http.MethodPost, http.MethodPut:
+		status, err = insertVanzare(r, db, logger, r.Method == http.MethodPut)
 	//case http.MethodDelete:
 	//	status, err = deleteOrder(r, db, logger)
 	default:
@@ -69,4 +70,39 @@ func getVanzari(db datasources.DBClient, logger *log.Logger) ([]byte, int, error
 	}
 
 	return response, http.StatusOK, nil
+}
+
+func extractVanzareParams(r *http.Request) (repositories.InsertVanzare, error) {
+	var unmarshalledvanzare repositories.InsertVanzare
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return repositories.InsertVanzare{}, err
+	}
+
+	err = json.Unmarshal(body, &unmarshalledvanzare)
+	if err != nil {
+		return repositories.InsertVanzare{}, err
+	}
+
+	return unmarshalledvanzare, nil
+}
+
+func insertVanzare(r *http.Request, db datasources.DBClient, logger *log.Logger, update bool) (int, error) {
+	vanzare, err := extractVanzareParams(r)
+	if err != nil {
+		return http.StatusBadRequest, errors.New("vanzare information sent on request body does not match required format")
+	}
+
+	//if update {
+	//	err = db.EditOrder(articol)
+	//} else {
+	err = db.InsertVanzare(vanzare)
+	//}
+	if err != nil {
+		logger.Printf("Internal error: %s", err.Error())
+		return http.StatusInternalServerError, errors.New("could not save vanzare")
+	}
+
+	return http.StatusOK, nil
 }

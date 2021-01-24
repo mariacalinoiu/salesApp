@@ -189,6 +189,51 @@ func (client DBClient) GetVanzari() ([]repositories.Vanzare, error) {
 	return vanzari, nil
 }
 
+func (client DBClient) InsertVanzare(vanzareLinii repositories.InsertVanzare) error {
+	vanzare := vanzareLinii.Vanzare
+	stmt, err := client.db.Prepare(`INSERT INTO "Vanzari"("CodPartener", "Status", "Data", "DataLivrare", "Total", "Vat", "Discount", "Moneda", "Platit", "Comentarii", "CodVanzator", "IdSucursala") VALUES(:1, :2, TO_DATE(:3, 'MM/DD/YYYY'), TO_DATE(:4, 'MM/DD/YYYY'), :5, :6, :7, :8, :9, :10, :11, :12)`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(
+		vanzare.CodPartener,
+		vanzare.Status,
+		vanzare.Data,
+		vanzare.DataLivrare,
+		vanzare.Total,
+		vanzare.VAT,
+		vanzare.Discount,
+		vanzare.Moneda,
+		vanzare.Platit,
+		vanzare.Comentarii,
+		vanzare.CodVanzator,
+		vanzare.IDSucursala,
+	)
+	if err != nil {
+		return err
+	}
+
+	var IDIntrare int
+	rows, err := client.db.Query(`SELECT MAX("IdIntrare") FROM "Vanzari"`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	rows.Next()
+	err = rows.Scan(&IDIntrare)
+
+	for _, linie := range vanzareLinii.LiniiVanzari {
+		linie.IDIntrare = IDIntrare
+		err = client.InsertLinieVanzare(linie)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (client DBClient) GetLiniiVanzare(IDIntrareVanzari int) ([]repositories.LinieVanzare, error) {
 	var (
 		liniiVanzare []repositories.LinieVanzare
@@ -240,6 +285,39 @@ func (client DBClient) GetLiniiVanzare(IDIntrareVanzari int) ([]repositories.Lin
 	}
 
 	return liniiVanzare, nil
+}
+
+func (client DBClient) InsertLinieVanzare(linie repositories.LinieVanzare) error {
+	var nrLinieVanzare int
+	rows, err := client.db.Query(
+		`SELECT MAX("NumarLinie") FROM "LiniiVanzari" WHERE "IdIntrare" = :1`,
+		linie.IDIntrare,
+	)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	rows.Next()
+	err = rows.Scan(&nrLinieVanzare)
+
+	stmt, err := client.db.Prepare(`INSERT INTO "LiniiVanzari"("IdIntrare", "NumarLinie", "CodArticol", "Cantitate", "Pret", "Discount", "Vat", "TotalLinie", "IdProiect") VALUES(:1, :2, :3, :4, :5, :6, :7, :8, :9)`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(
+		linie.IDIntrare,
+		nrLinieVanzare+1,
+		linie.CodArticol,
+		linie.Cantitate,
+		linie.Pret,
+		linie.Discount,
+		linie.VAT,
+		linie.TotalLinie,
+		linie.IDProiect,
+	)
+
+	return err
 }
 
 func (client DBClient) GetArticole() ([]repositories.Articol, error) {

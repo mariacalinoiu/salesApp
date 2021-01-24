@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -24,8 +25,8 @@ func HandleLiniiVanzari(w http.ResponseWriter, r *http.Request, db datasources.D
 		w.Header().Set("Access-Control-Expose-Headers", "Authorization")
 	case http.MethodGet:
 		response, status, err = getLiniiVanzari(r, db, logger)
-	//case http.MethodPost, http.MethodPut:
-	//	response, status, err = insertVanzari(r, db, logger, r.Method == http.MethodPut)
+	case http.MethodPost, http.MethodPut:
+		status, err = insertLinieVanzare(r, db, logger, r.Method == http.MethodPut)
 	//case http.MethodDelete:
 	//	status, err = deleteOrder(r, db, logger)
 	default:
@@ -80,4 +81,39 @@ func getLiniiVanzari(r *http.Request, db datasources.DBClient, logger *log.Logge
 	}
 
 	return response, http.StatusOK, nil
+}
+
+func extractLinieVanzareParams(r *http.Request) (repositories.LinieVanzare, error) {
+	var unmarshalledvanzare repositories.LinieVanzare
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return repositories.LinieVanzare{}, err
+	}
+
+	err = json.Unmarshal(body, &unmarshalledvanzare)
+	if err != nil {
+		return repositories.LinieVanzare{}, err
+	}
+
+	return unmarshalledvanzare, nil
+}
+
+func insertLinieVanzare(r *http.Request, db datasources.DBClient, logger *log.Logger, update bool) (int, error) {
+	linieVanzare, err := extractLinieVanzareParams(r)
+	if err != nil {
+		return http.StatusBadRequest, errors.New("linieVanzare information sent on request body does not match required format")
+	}
+
+	//if update {
+	//	err = db.EditOrder(articol)
+	//} else {
+	err = db.InsertLinieVanzare(linieVanzare)
+	//}
+	if err != nil {
+		logger.Printf("Internal error: %s", err.Error())
+		return http.StatusInternalServerError, errors.New("could not save linieVanzare")
+	}
+
+	return http.StatusOK, nil
 }
