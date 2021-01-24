@@ -30,7 +30,14 @@ func GetClient(user string, password string, hostname string, dbName string) DBC
 	rows, err := db.Query(
 		"SELECT table_name FROM all_tables",
 	)
-	fmt.Printf("%+v", rows)
+
+	if err != nil {
+		for rows.Next() {
+			var name string
+			_ = rows.Scan(&name)
+			fmt.Printf("%+v", name)
+		}
+	}
 
 	return DBClient{db: db}
 }
