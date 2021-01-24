@@ -20,7 +20,7 @@ func HandleUnitatiDeMasura(w http.ResponseWriter, r *http.Request, db datasource
 	w.Header().Set("Access-Control-Expose-Headers", "Authorization")
 
 	switch r.Method {
-	case http.MethodGet:
+	case http.MethodGet, http.MethodOptions:
 		response, status, err = getUnitatiDeMasura(db, logger)
 	default:
 		status = http.StatusBadRequest
