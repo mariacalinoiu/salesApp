@@ -3,10 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"log"
 	"net/http"
 
 	"github.com/mariacalinoiu/salesApp/src/datasources"
+	"github.com/mariacalinoiu/salesApp/src/repositories"
 )
 
 func HandleProiecte(w http.ResponseWriter, r *http.Request, db datasources.DBClient, logger *log.Logger) {
@@ -17,8 +19,8 @@ func HandleProiecte(w http.ResponseWriter, r *http.Request, db datasources.DBCli
 	switch r.Method {
 	case http.MethodGet:
 		response, status, err = getProiecte(db, logger)
-	//case http.MethodPost, http.MethodPut:
-	//	response, status, err = insertProiecte(r, db, logger, r.Method == http.MethodPut)
+	case http.MethodPost, http.MethodPut:
+		status, err = insertProiect(r, db, logger, r.Method == http.MethodPut)
 	//case http.MethodDelete:
 	//	status, err = deleteOrder(r, db, logger)
 	default:
@@ -33,13 +35,15 @@ func HandleProiecte(w http.ResponseWriter, r *http.Request, db datasources.DBCli
 		return
 	}
 
-	_, err = w.Write(response)
-	if err != nil {
-		status = http.StatusInternalServerError
-		logger.Printf("Error: %s; Status: %d %s", err.Error(), status, http.StatusText(status))
-		http.Error(w, err.Error(), status)
+	if response != nil {
+		_, err = w.Write(response)
+		if err != nil {
+			status = http.StatusInternalServerError
+			logger.Printf("Error: %s; Status: %d %s", err.Error(), status, http.StatusText(status))
+			http.Error(w, err.Error(), status)
 
-		return
+			return
+		}
 	}
 
 	status = http.StatusOK
@@ -59,4 +63,39 @@ func getProiecte(db datasources.DBClient, logger *log.Logger) ([]byte, int, erro
 	}
 
 	return response, http.StatusOK, nil
+}
+
+func extractProiectParams(r *http.Request) (repositories.Proiect, error) {
+	var unmarshalledProiect repositories.Proiect
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return repositories.Proiect{}, err
+	}
+
+	err = json.Unmarshal(body, &unmarshalledProiect)
+	if err != nil {
+		return repositories.Proiect{}, err
+	}
+
+	return unmarshalledProiect, nil
+}
+
+func insertProiect(r *http.Request, db datasources.DBClient, logger *log.Logger, update bool) (int, error) {
+	proiect, err := extractProiectParams(r)
+	if err != nil {
+		return http.StatusBadRequest, errors.New("proiect information sent on request body does not match required format")
+	}
+
+	//if update {
+	//	err = db.EditOrder(proiect)
+	//} else {
+	err = db.InsertProiect(proiect)
+	//}
+	if err != nil {
+		logger.Printf("Internal error: %s", err.Error())
+		return http.StatusInternalServerError, errors.New("could not save proiect")
+	}
+
+	return http.StatusOK, nil
 }

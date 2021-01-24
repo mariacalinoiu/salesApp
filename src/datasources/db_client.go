@@ -74,6 +74,23 @@ func (client DBClient) GetParteneri() ([]repositories.Partener, error) {
 	return parteneri, nil
 }
 
+func (client DBClient) InsertPartener(partener repositories.Partener) error {
+	stmt, err := client.db.Prepare("INSERT INTO Parteneri(CodPartener, NumePartener, CUI, Email, IdAdresa) VALUES(?, ?, ?, ?, ?)")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(
+		partener.CodPartener,
+		partener.NumePartener,
+		partener.CUI,
+		partener.Email,
+		partener.IDAdresa,
+	)
+
+	return err
+}
+
 func (client DBClient) GetVanzari() ([]repositories.Vanzare, error) {
 	var (
 		vanzari     []repositories.Vanzare
@@ -93,7 +110,7 @@ func (client DBClient) GetVanzari() ([]repositories.Vanzare, error) {
 	)
 
 	rows, err := client.db.Query(
-		"SELECT IdIntrare, CodPartener, Status, DataIntrare, DataLivrare, Total, vat, Discount, Moneda, Platit, Comentarii, CodVanzator, IdSucursala FROM Vanzari",
+		"SELECT IdIntrare, CodPartener, Status, DataIntrare, DataLivrare, Total, Vat, Discount, Moneda, Platit, Comentarii, CodVanzator, IdSucursala FROM Vanzari",
 	)
 	if err != nil {
 		return []repositories.Vanzare{}, err
@@ -149,7 +166,7 @@ func (client DBClient) GetLiniiVanzare(IDIntrareVanzari int) ([]repositories.Lin
 	)
 
 	rows, err := client.db.Query(
-		"SELECT IdIntrare, NumarLinie, CodArticol, Cantitate, Pret, Discount, VAT, TotalLinie, IdProiect FROM LiniiVanzari WHERE IdIntrare = ?",
+		"SELECT IdIntrare, NumarLinie, CodArticol, Cantitate, Pret, Discount, Vat, TotalLinie, IdProiect FROM LiniiVanzari WHERE IdIntrare = ?",
 		IDIntrareVanzari,
 	)
 	if err != nil {
@@ -378,6 +395,23 @@ func (client DBClient) GetProiecte() ([]repositories.Proiect, error) {
 	}
 
 	return proiecte, nil
+}
+
+func (client DBClient) InsertProiect(proiect repositories.Proiect) error {
+	stmt, err := client.db.Prepare("INSERT INTO Proiecte(IdProiect, NumeProiect, ValidDeLa, ValidPanaLa, Activ) VALUES(?, ?, TO_DATE(?, 'MM/DD/YYYY'), TO_DATE(?, 'MM/DD/YYYY'), ?)")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(
+		proiect.IDProiect,
+		proiect.NumeProiect,
+		proiect.ValidDeLa,
+		proiect.ValidPanaLa,
+		proiect.Activ,
+	)
+
+	return err
 }
 
 func (client DBClient) GetGrupeArticole() ([]repositories.GrupaArticole, error) {

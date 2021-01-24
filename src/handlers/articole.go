@@ -20,7 +20,7 @@ func HandleArticole(w http.ResponseWriter, r *http.Request, db datasources.DBCli
 	case http.MethodGet:
 		response, status, err = getArticole(db, logger)
 	case http.MethodPost, http.MethodPut:
-		response, status, err = insertArticol(r, db, logger, r.Method == http.MethodPut)
+		status, err = insertArticol(r, db, logger, r.Method == http.MethodPut)
 	//case http.MethodDelete:
 	//	status, err = deleteOrder(r, db, logger)
 	default:
@@ -81,10 +81,10 @@ func extractArticolParams(r *http.Request) (repositories.Articol, error) {
 	return unmarshalledArticol, nil
 }
 
-func insertArticol(r *http.Request, db datasources.DBClient, logger *log.Logger, update bool) ([]byte, int, error) {
+func insertArticol(r *http.Request, db datasources.DBClient, logger *log.Logger, update bool) (int, error) {
 	articol, err := extractArticolParams(r)
 	if err != nil {
-		return nil, http.StatusBadRequest, errors.New("articol information sent on request body does not match required format")
+		return http.StatusBadRequest, errors.New("articol information sent on request body does not match required format")
 	}
 
 	//if update {
@@ -94,8 +94,8 @@ func insertArticol(r *http.Request, db datasources.DBClient, logger *log.Logger,
 	//}
 	if err != nil {
 		logger.Printf("Internal error: %s", err.Error())
-		return nil, http.StatusInternalServerError, errors.New("could not save articol")
+		return http.StatusInternalServerError, errors.New("could not save articol")
 	}
 
-	return nil, http.StatusOK, nil
+	return http.StatusOK, nil
 }

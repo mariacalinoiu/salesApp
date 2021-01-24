@@ -93,4 +93,19 @@ type (
 		Bloc       string `json:"Bloc"`
 		Etaj       int    `json:"Etaj"`
 	}
+
+	InsertPartener struct {
+		Partener Partener `json:"Partener"`
+		Adresa   Adresa   `json:"Adresa"`
+	}
+
+	InsertVanzator struct {
+		Vanzator Vanzator `json:"Vanzator"`
+		Adresa   Adresa   `json:"Adresa"`
+	}
+
+	InsertSucursala struct {
+		Sucursala Sucursala `json:"Sucursala"`
+		Adresa    Adresa    `json:"Adresa"`
+	}
 )
