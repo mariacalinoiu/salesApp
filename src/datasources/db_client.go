@@ -37,6 +37,8 @@ func GetClient(user string, password string, hostname string, dbName string) DBC
 			_ = rows.Scan(&name)
 			fmt.Printf("%+v", name)
 		}
+	} else {
+		fmt.Printf("%+v", err)
 	}
 
 	return DBClient{db: db}
