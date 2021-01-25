@@ -54,8 +54,9 @@ type (
 	}
 
 	GrupaArticole struct {
-		CodGrupa  int    `json:"CodGrupa"`
-		NumeGrupa string `json:"NumeGrupa"`
+		CodGrupa     int    `json:"CodGrupa"`
+		NumeGrupa    string `json:"NumeGrupa"`
+		DetaliiGrupa string `json:"DetaliiGrupa"`
 	}
 
 	UnitateDeMasura struct {

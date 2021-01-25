@@ -611,13 +611,14 @@ func (client DBClient) InsertProiect(proiect repositories.Proiect) error {
 
 func (client DBClient) GetGrupeArticole() ([]repositories.GrupaArticole, error) {
 	var (
-		grupe []repositories.GrupaArticole
-		cod   int
-		nume  string
+		grupe   []repositories.GrupaArticole
+		cod     int
+		nume    string
+		detalii string
 	)
 
 	rows, err := client.db.Query(
-		`SELECT * FROM "GrupaArticole"`,
+		`SELECT "CodGrupa", "NumeGrupa", NVL("DetaliiGrupa", ' ') FROM "GrupaArticole"`,
 	)
 	if err != nil {
 		return []repositories.GrupaArticole{}, err
@@ -625,7 +626,7 @@ func (client DBClient) GetGrupeArticole() ([]repositories.GrupaArticole, error) 
 
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&cod, &nume)
+		err := rows.Scan(&cod, &nume, &detalii)
 		if err != nil {
 			return []repositories.GrupaArticole{}, err
 		}
@@ -633,8 +634,9 @@ func (client DBClient) GetGrupeArticole() ([]repositories.GrupaArticole, error) 
 		grupe = append(
 			grupe,
 			repositories.GrupaArticole{
-				CodGrupa:  cod,
-				NumeGrupa: nume,
+				CodGrupa:     cod,
+				NumeGrupa:    nume,
+				DetaliiGrupa: detalii,
 			},
 		)
 	}
