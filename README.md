@@ -2,14 +2,12 @@
 
 ## Endpoints
 
-
+// TODO: docs go here
 
 
 ## Running the Server
 
-Reach project folder: ```cd ~/environment/salesApp/```
-
-Download all dependencies: ```go get -u -v -f all```
+Reach project folder: ```cd salesApp/```
 
 Build the server with: ```go build src/server.go```
 

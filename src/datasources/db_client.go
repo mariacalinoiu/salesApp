@@ -320,6 +320,41 @@ func (client DBClient) InsertLinieVanzare(linie repositories.LinieVanzare) error
 	return err
 }
 
+func (client DBClient) EditLinieVanzare(linie repositories.LinieVanzare) error {
+	stmt, err := client.db.Prepare(`UPDATE "LiniiVanzari" SET "CodArticol" = :1, "Cantitate" = :2, "Pret" = :3, "Discount" = :4, "Vat" = :5, "TotalLinie" = :6, "IdProiect" = :7 WHERE "IdIntrare" = :8 AND "NumarLinie" = :9`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(
+		linie.CodArticol,
+		linie.Cantitate,
+		linie.Pret,
+		linie.Discount,
+		linie.VAT,
+		linie.TotalLinie,
+		linie.IDProiect,
+		linie.IDIntrare,
+		linie.NumarLinie,
+	)
+
+	return err
+}
+
+func (client DBClient) DeleteLinieVanzare(IDIntrare int, numarLinie int) error {
+	stmt, err := client.db.Prepare(`DELETE FROM "LiniiVanzari" WHERE "IdIntrare" = :1 AND "NumarLinie" = :2`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(
+		IDIntrare,
+		numarLinie,
+	)
+
+	return err
+}
+
 func (client DBClient) GetArticole() ([]repositories.Articol, error) {
 	var (
 		articole        []repositories.Articol

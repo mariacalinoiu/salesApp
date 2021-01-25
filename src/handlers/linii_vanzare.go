@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -27,8 +28,8 @@ func HandleLiniiVanzari(w http.ResponseWriter, r *http.Request, db datasources.D
 		response, status, err = getLiniiVanzari(r, db, logger)
 	case http.MethodPost, http.MethodPut:
 		status, err = insertLinieVanzare(r, db, logger, r.Method == http.MethodPut)
-	//case http.MethodDelete:
-	//	status, err = deleteOrder(r, db, logger)
+	case http.MethodDelete:
+		status, err = deleteLinieVanzare(r, db, logger)
 	default:
 		status = http.StatusBadRequest
 		err = errors.New("wrong method type for /liniiVanzari route")
@@ -59,16 +60,11 @@ func HandleLiniiVanzari(w http.ResponseWriter, r *http.Request, db datasources.D
 }
 
 func getLiniiVanzari(r *http.Request, db datasources.DBClient, logger *log.Logger) ([]byte, int, error) {
-	params, ok := r.URL.Query()["IDIntrare"]
-
-	if !ok || len(params[0]) < 1 {
-		return nil, http.StatusBadRequest, errors.New("mandatory parameter 'IDIntrare' not found")
-	}
-
-	IDIntrare, err := strconv.Atoi(params[0])
+	IDIntrare, err := getIntParameter(r, "IDIntrare")
 	if err != nil {
-		return nil, http.StatusBadRequest, errors.New("could not convert parameter 'IDIntrare' to integer")
+		return nil, http.StatusBadRequest, err
 	}
+
 	vanzari, err := db.GetLiniiVanzare(IDIntrare)
 	if err != nil {
 		logger.Printf("Internal error: %s", err.Error())
@@ -84,19 +80,19 @@ func getLiniiVanzari(r *http.Request, db datasources.DBClient, logger *log.Logge
 }
 
 func extractLinieVanzareParams(r *http.Request) (repositories.LinieVanzare, error) {
-	var unmarshalledvanzare repositories.LinieVanzare
+	var unmarshalledVanzare repositories.LinieVanzare
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return repositories.LinieVanzare{}, err
 	}
 
-	err = json.Unmarshal(body, &unmarshalledvanzare)
+	err = json.Unmarshal(body, &unmarshalledVanzare)
 	if err != nil {
 		return repositories.LinieVanzare{}, err
 	}
 
-	return unmarshalledvanzare, nil
+	return unmarshalledVanzare, nil
 }
 
 func insertLinieVanzare(r *http.Request, db datasources.DBClient, logger *log.Logger, update bool) (int, error) {
@@ -105,15 +101,49 @@ func insertLinieVanzare(r *http.Request, db datasources.DBClient, logger *log.Lo
 		return http.StatusBadRequest, errors.New("linieVanzare information sent on request body does not match required format")
 	}
 
-	//if update {
-	//	err = db.EditOrder(articol)
-	//} else {
-	err = db.InsertLinieVanzare(linieVanzare)
-	//}
+	if update {
+		err = db.EditLinieVanzare(linieVanzare)
+	} else {
+		err = db.InsertLinieVanzare(linieVanzare)
+	}
 	if err != nil {
 		logger.Printf("Internal error: %s", err.Error())
 		return http.StatusInternalServerError, errors.New("could not save linieVanzare")
 	}
 
 	return http.StatusOK, nil
+}
+
+func deleteLinieVanzare(r *http.Request, db datasources.DBClient, logger *log.Logger) (int, error) {
+	IDIntrare, err := getIntParameter(r, "IDIntrare")
+	if err != nil {
+		return http.StatusBadRequest, err
+	}
+	numarLinie, err := getIntParameter(r, "NumarLinie")
+	if err != nil {
+		return http.StatusBadRequest, err
+	}
+
+	err = db.DeleteLinieVanzare(IDIntrare, numarLinie)
+	if err != nil {
+		logger.Printf("Internal error: %s", err.Error())
+		return http.StatusInternalServerError, errors.New("could not delete linieVanzare")
+	}
+
+	return http.StatusOK, nil
+}
+
+func getIntParameter(r *http.Request, paramName string) (int, error) {
+	params, ok := r.URL.Query()[paramName]
+
+	if !ok || len(params[0]) < 1 {
+		return http.StatusBadRequest, fmt.Errorf("mandatory parameter '%s' not found", paramName)
+	}
+
+	param, err := strconv.Atoi(params[0])
+	if err != nil {
+		return http.StatusBadRequest, fmt.Errorf("could not convert parameter '%s' to integer", paramName)
+	}
+
+	return param, nil
 }
