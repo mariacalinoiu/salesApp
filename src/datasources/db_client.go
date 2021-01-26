@@ -693,6 +693,207 @@ func (client DBClient) GetUnitatiDeMasura() ([]repositories.UnitateDeMasura, err
 	return um, nil
 }
 
+func (client DBClient) GetFormReport(params repositories.FormParams) ([]repositories.FormResult, error) {
+	query := `
+		SELECT "Pret", "Cantitate", "Vat", "Dicount", "Platit", "Comision", "Volum", "NumarTranzactii" 
+		FROM "Fapt_Vanzare" fv, "Dimensiune_Articol" da, "Dimensiune_Partener" dp, "Dimesiune_Sucursala" ds 
+	`
+
+	query = getReportQueryBasedOnFormParams(query, params)
+	fmt.Println(query)
+
+	var (
+		results         []repositories.FormResult
+		pret            float32
+		cantitate       float32
+		vat             float32
+		discount        float32
+		platit          float32
+		comision        float32
+		volum           float32
+		numarTranzactii float32
+	)
+
+	rows, err := client.db.Query(query)
+	if err != nil {
+		return []repositories.FormResult{}, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&pret, &cantitate, &vat, &discount, &platit, &comision, &volum, &numarTranzactii)
+		if err != nil {
+			return []repositories.FormResult{}, err
+		}
+
+		results = append(
+			results,
+			repositories.FormResult{
+				Pret:            pret,
+				Cantitate:       cantitate,
+				Vat:             vat,
+				Discount:        discount,
+				Platit:          platit,
+				Comision:        comision,
+				Volum:           volum,
+				NumarTranzactii: numarTranzactii,
+			},
+		)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []repositories.FormResult{}, err
+	}
+
+	return results, nil
+}
+
+func (client DBClient) GetGroupedFormReport(params repositories.FormParams) ([]repositories.FormResult, error) {
+	query := `
+		SELECT NVL(SUM("Pret"), 0) PretTotal, NVL(SUM("Cantitate"), 0) CantitateTotal, NVL(SUM("Vat"), 0) VatTotal, 
+			NVL(SUM("Dicount"), 0) DiscountTotal, NVL(SUM("Platit"), 0) PlatitTotal, NVL(SUM("Comision"), 0) ComisionTotal, 
+			NVL(SUM("Volum"), 0) VolumTotal, NVL(SUM("NumarTranzactii"), 0) NumarTranzactiiTotal,
+			NVL(AVG("Pret"), 0) PretMediu, NVL(AVG("Cantitate"), 0) CantitateMedie, NVL(AVG("Vat"), 0) VatMediu, 
+			NVL(AVG("Dicount"), 0) DiscountMediu, NVL(AVG("Platit"), 0) PlatitMedie, NVL(AVG("Comision"), 0) ComisionMediu, 
+			NVL(AVG("Volum"), 0) VolumMediu, NVL(AVG("NumarTranzactii"), 0) NumarTranzactiiMediu 
+		FROM "Fapt_Vanzare" fv, "Dimensiune_Articol" da, "Dimensiune_Partener" dp, "Dimesiune_Sucursala" ds 
+	`
+
+	query = getReportQueryBasedOnFormParams(query, params)
+	fmt.Println(query)
+
+	var (
+		results              []repositories.FormResult
+		pretTotal            float32
+		cantitateTotal       float32
+		vatTotal             float32
+		discountTotal        float32
+		platitTotal          float32
+		comisionTotal        float32
+		volumTotal           float32
+		numarTranzactiiTotal float32
+		pretMediu            float32
+		cantitateMedie       float32
+		vatMediu             float32
+		discountMediu        float32
+		platitMedie          float32
+		comisionMediu        float32
+		volumMediu           float32
+		numarTranzactiiMediu float32
+	)
+
+	rows, err := client.db.Query(query)
+	if err != nil {
+		return []repositories.FormResult{}, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&pretTotal, &cantitateTotal, &vatTotal, &discountTotal, &platitTotal, &comisionTotal, &volumTotal, &numarTranzactiiTotal,
+			&pretMediu, &cantitateMedie, &vatMediu, &discountMediu, &platitMedie, &comisionMediu, &volumMediu, &numarTranzactiiMediu)
+		if err != nil {
+			return []repositories.FormResult{}, err
+		}
+
+		results = append(
+			results,
+			repositories.FormResult{
+				Pret:            pretTotal,
+				Cantitate:       cantitateTotal,
+				Vat:             vatTotal,
+				Discount:        discountTotal,
+				Platit:          platitTotal,
+				Comision:        comisionTotal,
+				Volum:           volumTotal,
+				NumarTranzactii: numarTranzactiiTotal,
+			},
+			repositories.FormResult{
+				Pret:            pretMediu,
+				Cantitate:       cantitateMedie,
+				Vat:             vatMediu,
+				Discount:        discountMediu,
+				Platit:          platitMedie,
+				Comision:        comisionMediu,
+				Volum:           volumMediu,
+				NumarTranzactii: numarTranzactiiMediu,
+			},
+		)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []repositories.FormResult{}, err
+	}
+
+	return results, nil
+}
+
+func getReportQueryBasedOnFormParams(query string, params repositories.FormParams) string {
+	paramIndex := 1
+	if params.CodVanzator != 0 {
+		if paramIndex == 1 {
+			query = fmt.Sprintf("%s WHERE ", query)
+		} else {
+			query = fmt.Sprintf("%s AND ", query)
+		}
+		query = fmt.Sprintf("%s %s %d", query, `fv."CodVanzator" =`, params.CodVanzator)
+		paramIndex += 1
+	}
+
+	if len(params.NumeArticol) > 0 {
+		if paramIndex == 1 {
+			query = fmt.Sprintf("%s WHERE ", query)
+		} else {
+			query = fmt.Sprintf("%s AND ", query)
+		}
+		query = fmt.Sprintf("%s %s '%s'", query, `fv."CodArticol" = da."CodArticol" AND da."NumeArticol" =`, params.NumeArticol)
+		paramIndex += 1
+	}
+
+	if len(params.NumeSucursala) > 0 {
+		if paramIndex == 1 {
+			query = fmt.Sprintf("%s WHERE ", query)
+		} else {
+			query = fmt.Sprintf("%s AND ", query)
+		}
+		query = fmt.Sprintf("%s %s '%s'", query, `fv."IdSucursala" = ds."IdSucursala" AND ds."NumeSucursala" =`, params.NumeSucursala)
+		paramIndex += 1
+	}
+
+	if len(params.NumePartener) > 0 {
+		if paramIndex == 1 {
+			query = fmt.Sprintf("%s WHERE ", query)
+		} else {
+			query = fmt.Sprintf("%s AND ", query)
+		}
+		query = fmt.Sprintf("%s %s '%s'", query, `fv."CodPartener" = dp."CodPartener" AND dp."NumePartener" =`, params.NumePartener)
+		paramIndex += 1
+	}
+
+	if len(params.DataStart) > 0 {
+		if paramIndex == 1 {
+			query = fmt.Sprintf("%s WHERE ", query)
+		} else {
+			query = fmt.Sprintf("%s AND ", query)
+		}
+		query = fmt.Sprintf("%s %s'%s'%s", query, `fv."Data" >= TO_DATE(`, params.DataStart, `, 'MM/DD/YYYY')`)
+		paramIndex += 1
+	}
+
+	if len(params.DataEnd) > 0 {
+		if paramIndex == 1 {
+			query = fmt.Sprintf("%s WHERE ", query)
+		} else {
+			query = fmt.Sprintf("%s AND ", query)
+		}
+		query = fmt.Sprintf("%s %s'%s'%s", query, `fv."Data" <= TO_DATE(`, params.DataEnd, `, 'MM/DD/YYYY')`)
+		paramIndex += 1
+	}
+
+	return query
+}
+
 //func (client DBClient) GetProductsByCategoryID(categoryID int) (repositories.ProductsJSON, error) {
 //	var (
 //		products    []repositories.Product

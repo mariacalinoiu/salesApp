@@ -35,8 +35,8 @@ func logWith(logger *log.Logger) option {
 	}
 }
 
-func setup(logger *log.Logger, db datasources.DBClient) *http.Server {
-	server := newServer(db, logWith(logger))
+func setup(logger *log.Logger, db datasources.DBClient, dw datasources.DBClient) *http.Server {
+	server := newServer(db, dw, logWith(logger))
 	return &http.Server{
 		Addr:         ":8081",
 		Handler:      server,
@@ -46,7 +46,7 @@ func setup(logger *log.Logger, db datasources.DBClient) *http.Server {
 	}
 }
 
-func newServer(db datasources.DBClient, options ...option) *server {
+func newServer(db datasources.DBClient, dw datasources.DBClient, options ...option) *server {
 	s := &server{logger: log.New(ioutil.Discard, "", 0)}
 
 	for _, o := range options {
@@ -100,25 +100,25 @@ func newServer(db datasources.DBClient, options ...option) *server {
 			handlers.HandleUnitatiDeMasura(w, r, db, s.logger)
 		},
 	)
-	s.mux.HandleFunc("/cors",
+	s.mux.HandleFunc("/formReport",
 		func(w http.ResponseWriter, r *http.Request) {
-			if origin := r.Header.Get("Origin"); origin != "" {
-				w.Header().Set("Access-Control-Allow-Origin", "*")
-				w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-				w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, Authorization,X-CSRF-Token")
-				w.Header().Set("Access-Control-Expose-Headers", "Authorization")
-			}
-			return
-		})
+			handlers.HandleFormReport(w, r, dw, s.logger)
+		},
+	)
+	s.mux.HandleFunc("/groupedFormReport",
+		func(w http.ResponseWriter, r *http.Request) {
+			handlers.HandleGroupedFormReport(w, r, dw, s.logger)
+		},
+	)
 
 	return s
 }
 
 func main() {
 	logger := log.New(os.Stdout, "", 0)
-	//db := datasources.GetClient("SCHEMA_PROIECT_OLDB", "pass1234", "5.12.200.73:1521/ORCL.DOCKER.INTERNAL", "SCHEMA_PROIECT_OLDB")
 	db := datasources.GetClient("SCHEMA_PROIECT_OLDB", "pass1234", "5.12.199.171:1521", "ORCL.DOCKER.INTERNAL")
-	hs := setup(logger, db)
+	dw := datasources.GetClient("SCHEMA_PROIECT_OLAP", "pass1234", "5.12.199.171:1521", "ORCL.DOCKER.INTERNAL")
+	hs := setup(logger, db, dw)
 
 	logger.Printf("Listening on http://localhost%s\n", hs.Addr)
 	go func() {

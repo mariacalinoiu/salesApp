@@ -3,11 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 
 	"salesApp/src/datasources"
 	"salesApp/src/repositories"
@@ -131,19 +129,4 @@ func deleteLinieVanzare(r *http.Request, db datasources.DBClient, logger *log.Lo
 	}
 
 	return http.StatusOK, nil
-}
-
-func getIntParameter(r *http.Request, paramName string) (int, error) {
-	params, ok := r.URL.Query()[paramName]
-
-	if !ok || len(params[0]) < 1 {
-		return http.StatusBadRequest, fmt.Errorf("mandatory parameter '%s' not found", paramName)
-	}
-
-	param, err := strconv.Atoi(params[0])
-	if err != nil {
-		return http.StatusBadRequest, fmt.Errorf("could not convert parameter '%s' to integer", paramName)
-	}
-
-	return param, nil
 }

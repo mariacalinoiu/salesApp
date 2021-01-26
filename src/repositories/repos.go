@@ -118,4 +118,24 @@ type (
 	WasSuccess struct {
 		Success bool `json:"success"`
 	}
+
+	FormParams struct {
+		CodVanzator   int
+		NumeArticol   string
+		NumePartener  string
+		NumeSucursala string
+		DataStart     string
+		DataEnd       string
+	}
+
+	FormResult struct {
+		Pret            float32 `json:"Pret"`
+		Cantitate       float32 `json:"Cantitate"`
+		Vat             float32 `json:"VAT"`
+		Discount        float32 `json:"Discount"`
+		Platit          float32 `json:"Platit"`
+		Comision        float32 `json:"Comision"`
+		Volum           float32 `json:"Volum"`
+		NumarTranzactii float32 `json:"NumarTranzactii"`
+	}
 )
