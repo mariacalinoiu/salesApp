@@ -115,6 +115,11 @@ func newServer(db datasources.DBClient, dw datasources.DBClient, options ...opti
 			handlers.HandleVanzariGrupeArticole(w, r, dw, s.logger)
 		},
 	)
+	s.mux.HandleFunc("/cantitatiJudete",
+		func(w http.ResponseWriter, r *http.Request) {
+			handlers.HandleCantitatiJudete(w, r, dw, s.logger)
+		},
+	)
 
 	return s
 }

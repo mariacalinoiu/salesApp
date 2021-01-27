@@ -139,8 +139,14 @@ type (
 		NumarTranzactii float32 `json:"NumarTranzactii"`
 	}
 
-	VanzariByGrupeArticole struct {
+	VanzariGrupeArticole struct {
 		NumeGrupa     string  `json:"NumeGrupa"`
 		VanzareTotala float32 `json:"VanzareTotala"`
+	}
+
+	CantitateJudete struct {
+		Judet          string  `json:"Judet"`
+		Um             string  `json:"Um"`
+		CantitateMedie float32 `json:"CantitateMedie"`
 	}
 )

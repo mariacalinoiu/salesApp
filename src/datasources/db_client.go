@@ -693,9 +693,9 @@ func (client DBClient) GetUnitatiDeMasura() ([]repositories.UnitateDeMasura, err
 	return um, nil
 }
 
-func (client DBClient) GetVanzariGrupeArticole() ([]repositories.VanzariByGrupeArticole, error) {
+func (client DBClient) GetVanzariGrupeArticole() ([]repositories.VanzariGrupeArticole, error) {
 	var (
-		results       []repositories.VanzariByGrupeArticole
+		results       []repositories.VanzariGrupeArticole
 		numeGrupa     string
 		vanzareTotala float32
 	)
@@ -708,19 +708,19 @@ func (client DBClient) GetVanzariGrupeArticole() ([]repositories.VanzariByGrupeA
 		
 	`)
 	if err != nil {
-		return []repositories.VanzariByGrupeArticole{}, err
+		return []repositories.VanzariGrupeArticole{}, err
 	}
 
 	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&vanzareTotala, &numeGrupa)
 		if err != nil {
-			return []repositories.VanzariByGrupeArticole{}, err
+			return []repositories.VanzariGrupeArticole{}, err
 		}
 
 		results = append(
 			results,
-			repositories.VanzariByGrupeArticole{
+			repositories.VanzariGrupeArticole{
 				NumeGrupa:     numeGrupa,
 				VanzareTotala: vanzareTotala,
 			},
@@ -729,7 +729,50 @@ func (client DBClient) GetVanzariGrupeArticole() ([]repositories.VanzariByGrupeA
 
 	err = rows.Err()
 	if err != nil {
-		return []repositories.VanzariByGrupeArticole{}, err
+		return []repositories.VanzariGrupeArticole{}, err
+	}
+
+	return results, nil
+}
+
+func (client DBClient) GetCantitatiJudete() ([]repositories.CantitateJudete, error) {
+	var (
+		results        []repositories.CantitateJudete
+		judet          string
+		um             string
+		cantitateMedie float32
+	)
+
+	rows, err := client.db.Query(`
+		SELECT NVL(AVG(fv."Cantitate"), 0) CantitateMedie, da."NumeUnitateDeMasura", sda."Judet"
+		FROM "Fapt_Vanzare" fv, "Dimesiune_Sucursala" ds, "SubDimensiune_Adresa" sda, "Dimensiune_Articol" da
+		WHERE fv."IdSucursala" = ds."IdSucursala" AND ds."IdAdresa" = sda."IdAdresa" AND fv."CodArticol" = da."CodArticol"
+		GROUP BY da."NumeUnitateDeMasura", sda."Judet"
+	`)
+	if err != nil {
+		return []repositories.CantitateJudete{}, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&cantitateMedie, &um, &judet)
+		if err != nil {
+			return []repositories.CantitateJudete{}, err
+		}
+
+		results = append(
+			results,
+			repositories.CantitateJudete{
+				Judet:          judet,
+				Um:             um,
+				CantitateMedie: cantitateMedie,
+			},
+		)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []repositories.CantitateJudete{}, err
 	}
 
 	return results, nil
