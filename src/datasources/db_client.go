@@ -820,6 +820,61 @@ func (client DBClient) GetProcentDiscountTrimestre() ([]repositories.ProcentDisc
 	return results, nil
 }
 
+func (client DBClient) GetVolumLivratZile(dataStart string, dataEnd string) ([]repositories.VolumLivratZile, error) {
+	var (
+		results          []repositories.VolumLivratZile
+		ziSaptamana      string
+		volumMediuLivrat float32
+	)
+
+	whereStatement := ""
+	if len(dataStart) > 0 {
+		whereStatement = fmt.Sprintf("%s%s%s", `WHERE fv."Data" >= TO_DATE(`, dataStart, `, 'MM/DD/YYYY')`)
+	}
+	if len(dataEnd) > 0 {
+		if len(whereStatement) == 0 {
+			whereStatement = fmt.Sprintf("%s%s%s", `WHERE fv."Data" <= TO_DATE(`, dataEnd, `, 'MM/DD/YYYY')`)
+		} else {
+			whereStatement = fmt.Sprintf("%s%s%s", ` AND fv."Data" <= TO_DATE(`, dataEnd, `, 'MM/DD/YYYY')`)
+		}
+	}
+
+	rows, err := client.db.Query(fmt.Sprintf("%s\n%s\n%s",
+		`
+		SELECT NVL(AVG(fv."Volum"), 0) VolumMediuLivrat, TO_CHAR(fv."DataLivrare", 'DY') ZiSaptamana
+		FROM "Fapt_Vanzare" fv
+		`,
+		whereStatement,
+		`GROUP BY TO_CHAR(fv."DataLivrare", 'DY')`,
+	))
+	if err != nil {
+		return []repositories.VolumLivratZile{}, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&volumMediuLivrat, &ziSaptamana)
+		if err != nil {
+			return []repositories.VolumLivratZile{}, err
+		}
+
+		results = append(
+			results,
+			repositories.VolumLivratZile{
+				ZiSaptamana:      ziSaptamana,
+				VolumMediuLivrat: volumMediuLivrat,
+			},
+		)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []repositories.VolumLivratZile{}, err
+	}
+
+	return results, nil
+}
+
 func (client DBClient) GetFormReport(params repositories.FormParams) ([]repositories.FormResult, error) {
 	selectStatement := `SELECT fv."Pret", fv."Cantitate", fv."Vat", fv."Dicount", fv."Platit", fv."Comision", fv."Volum", fv."NumarTranzactii"`
 	fromStatement := `FROM "Fapt_Vanzare" fv`

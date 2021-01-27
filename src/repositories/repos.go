@@ -154,4 +154,9 @@ type (
 		Trimestru       string  `json:"Trimestru"`
 		ProcentDiscount float32 `json:"ProcentDiscount"`
 	}
+
+	VolumLivratZile struct {
+		ZiSaptamana      string  `json:"ZiSaptamana"`
+		VolumMediuLivrat float32 `json:"VolumMediuLivrat"`
+	}
 )

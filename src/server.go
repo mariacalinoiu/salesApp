@@ -125,6 +125,11 @@ func newServer(db datasources.DBClient, dw datasources.DBClient, options ...opti
 			handlers.HandleProcentDiscountTrimestre(w, r, dw, s.logger)
 		},
 	)
+	s.mux.HandleFunc("/volumZile",
+		func(w http.ResponseWriter, r *http.Request) {
+			handlers.HandleVolumMediuZile(w, r, dw, s.logger)
+		},
+	)
 
 	return s
 }
