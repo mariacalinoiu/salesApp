@@ -694,12 +694,10 @@ func (client DBClient) GetUnitatiDeMasura() ([]repositories.UnitateDeMasura, err
 }
 
 func (client DBClient) GetFormReport(params repositories.FormParams) ([]repositories.FormResult, error) {
-	query := `
-		SELECT "Pret", "Cantitate", "Vat", "Dicount", "Platit", "Comision", "Volum", "NumarTranzactii" 
-		FROM "Fapt_Vanzare" fv, "Dimensiune_Articol" da, "Dimensiune_Partener" dp, "Dimesiune_Sucursala" ds 
-	`
+	selectStatement := `SELECT fv."Pret", fv."Cantitate", fv."Vat", fv."Dicount", fv."Platit", fv."Comision", fv."Volum", fv."NumarTranzactii"`
+	fromStatement := `FROM "Fapt_Vanzare" fv`
 
-	query = getReportQueryBasedOnFormParams(query, params)
+	query := getReportQueryBasedOnFormParams(selectStatement, fromStatement, params)
 	fmt.Println(query)
 
 	var (
@@ -750,17 +748,17 @@ func (client DBClient) GetFormReport(params repositories.FormParams) ([]reposito
 }
 
 func (client DBClient) GetGroupedFormReport(params repositories.FormParams) ([]repositories.FormResult, error) {
-	query := `
-		SELECT NVL(SUM("Pret"), 0) PretTotal, NVL(SUM("Cantitate"), 0) CantitateTotal, NVL(SUM("Vat"), 0) VatTotal, 
-			NVL(SUM("Dicount"), 0) DiscountTotal, NVL(SUM("Platit"), 0) PlatitTotal, NVL(SUM("Comision"), 0) ComisionTotal, 
-			NVL(SUM("Volum"), 0) VolumTotal, NVL(SUM("NumarTranzactii"), 0) NumarTranzactiiTotal,
-			NVL(AVG("Pret"), 0) PretMediu, NVL(AVG("Cantitate"), 0) CantitateMedie, NVL(AVG("Vat"), 0) VatMediu, 
-			NVL(AVG("Dicount"), 0) DiscountMediu, NVL(AVG("Platit"), 0) PlatitMedie, NVL(AVG("Comision"), 0) ComisionMediu, 
-			NVL(AVG("Volum"), 0) VolumMediu, NVL(AVG("NumarTranzactii"), 0) NumarTranzactiiMediu 
-		FROM "Fapt_Vanzare" fv, "Dimensiune_Articol" da, "Dimensiune_Partener" dp, "Dimesiune_Sucursala" ds 
+	selectStatement := `
+		SELECT NVL(SUM(fv."Pret"), 0) PretTotal, NVL(SUM(fv."Cantitate"), 0) CantitateTotal, NVL(SUM(fv."Vat"), 0) VatTotal, 
+			NVL(SUM(fv."Dicount"), 0) DiscountTotal, NVL(SUM(fv."Platit"), 0) PlatitTotal, NVL(SUM(fv."Comision"), 0) ComisionTotal, 
+			NVL(SUM(fv."Volum"), 0) VolumTotal, NVL(SUM(fv."NumarTranzactii"), 0) NumarTranzactiiTotal,
+			NVL(AVG(fv."Pret"), 0) PretMediu, NVL(AVG(fv."Cantitate"), 0) CantitateMedie, NVL(AVG(fv."Vat"), 0) VatMediu, 
+			NVL(AVG(fv."Dicount"), 0) DiscountMediu, NVL(AVG(fv."Platit"), 0) PlatitMedie, NVL(AVG(fv."Comision"), 0) ComisionMediu, 
+			NVL(AVG(fv."Volum"), 0) VolumMediu, NVL(AVG(fv."NumarTranzactii"), 0) NumarTranzactiiMediu 
 	`
+	fromStatement := `FROM "Fapt_Vanzare" fv`
 
-	query = getReportQueryBasedOnFormParams(query, params)
+	query := getReportQueryBasedOnFormParams(selectStatement, fromStatement, params)
 	fmt.Println(query)
 
 	var (
@@ -829,69 +827,67 @@ func (client DBClient) GetGroupedFormReport(params repositories.FormParams) ([]r
 	return results, nil
 }
 
-func getReportQueryBasedOnFormParams(query string, params repositories.FormParams) string {
-	paramIndex := 1
+func getReportQueryBasedOnFormParams(selectStatement string, fromStatement string, params repositories.FormParams) string {
+	whereStatement := ""
+
 	if params.CodVanzator != 0 {
-		if paramIndex == 1 {
-			query = fmt.Sprintf("%s WHERE ", query)
+		if len(whereStatement) == 0 {
+			whereStatement = "WHERE "
 		} else {
-			query = fmt.Sprintf("%s AND ", query)
+			whereStatement = fmt.Sprintf("%s AND ", whereStatement)
 		}
-		query = fmt.Sprintf("%s %s %d", query, `fv."CodVanzator" =`, params.CodVanzator)
-		paramIndex += 1
+		whereStatement = fmt.Sprintf("%s %s %d", whereStatement, `fv."CodVanzator" =`, params.CodVanzator)
 	}
 
 	if len(params.NumeArticol) > 0 {
-		if paramIndex == 1 {
-			query = fmt.Sprintf("%s WHERE ", query)
+		if len(whereStatement) == 0 {
+			whereStatement = "WHERE "
 		} else {
-			query = fmt.Sprintf("%s AND ", query)
+			whereStatement = fmt.Sprintf("%s AND ", whereStatement)
 		}
-		query = fmt.Sprintf("%s %s '%s'", query, `fv."CodArticol" = da."CodArticol" AND da."NumeArticol" =`, params.NumeArticol)
-		paramIndex += 1
+		whereStatement = fmt.Sprintf("%s %s '%s'", whereStatement, `fv."CodArticol" = da."CodArticol" AND da."NumeArticol" =`, params.NumeArticol)
+		fromStatement = fmt.Sprintf(`%s, "Dimensiune_Articol" da`, fromStatement)
 	}
 
 	if len(params.NumeSucursala) > 0 {
-		if paramIndex == 1 {
-			query = fmt.Sprintf("%s WHERE ", query)
+		if len(whereStatement) == 0 {
+			whereStatement = "WHERE "
 		} else {
-			query = fmt.Sprintf("%s AND ", query)
+			whereStatement = fmt.Sprintf("%s AND ", whereStatement)
 		}
-		query = fmt.Sprintf("%s %s '%s'", query, `fv."IdSucursala" = ds."IdSucursala" AND ds."NumeSucursala" =`, params.NumeSucursala)
-		paramIndex += 1
+		whereStatement = fmt.Sprintf("%s %s '%s'", whereStatement, `fv."IdSucursala" = ds."IdSucursala" AND ds."NumeSucursala" =`, params.NumeSucursala)
+		fromStatement = fmt.Sprintf(`%s, "Dimesiune_Sucursala" ds`, fromStatement)
 	}
 
 	if len(params.NumePartener) > 0 {
-		if paramIndex == 1 {
-			query = fmt.Sprintf("%s WHERE ", query)
+		if len(whereStatement) == 0 {
+			whereStatement = "WHERE "
 		} else {
-			query = fmt.Sprintf("%s AND ", query)
+			whereStatement = fmt.Sprintf("%s AND ", whereStatement)
 		}
-		query = fmt.Sprintf("%s %s '%s'", query, `fv."CodPartener" = dp."CodPartener" AND dp."NumePartener" =`, params.NumePartener)
-		paramIndex += 1
+		whereStatement = fmt.Sprintf("%s %s '%s'", whereStatement, `fv."CodPartener" = dp."CodPartener" AND dp."NumePartener" =`, params.NumePartener)
+		fromStatement = fmt.Sprintf(`%s, "Dimensiune_Partener" dp`, fromStatement)
 	}
 
 	if len(params.DataStart) > 0 {
-		if paramIndex == 1 {
-			query = fmt.Sprintf("%s WHERE ", query)
+		if len(whereStatement) == 0 {
+			whereStatement = "WHERE "
 		} else {
-			query = fmt.Sprintf("%s AND ", query)
+			whereStatement = fmt.Sprintf("%s AND ", whereStatement)
 		}
-		query = fmt.Sprintf("%s %s'%s'%s", query, `fv."Data" >= TO_DATE(`, params.DataStart, `, 'MM/DD/YYYY')`)
-		paramIndex += 1
+		whereStatement = fmt.Sprintf("%s %s'%s'%s", whereStatement, `fv."Data" >= TO_DATE(`, params.DataStart, `, 'MM/DD/YYYY')`)
 	}
 
 	if len(params.DataEnd) > 0 {
-		if paramIndex == 1 {
-			query = fmt.Sprintf("%s WHERE ", query)
+		if len(whereStatement) == 0 {
+			whereStatement = "WHERE "
 		} else {
-			query = fmt.Sprintf("%s AND ", query)
+			whereStatement = fmt.Sprintf("%s AND ", whereStatement)
 		}
-		query = fmt.Sprintf("%s %s'%s'%s", query, `fv."Data" <= TO_DATE(`, params.DataEnd, `, 'MM/DD/YYYY')`)
-		paramIndex += 1
+		whereStatement = fmt.Sprintf("%s %s'%s'%s", whereStatement, `fv."Data" <= TO_DATE(`, params.DataEnd, `, 'MM/DD/YYYY')`)
 	}
 
-	return query
+	return fmt.Sprintf("%s\n%s\n%s", selectStatement, fromStatement, whereStatement)
 }
 
 //func (client DBClient) GetProductsByCategoryID(categoryID int) (repositories.ProductsJSON, error) {
