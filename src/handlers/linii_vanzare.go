@@ -58,7 +58,7 @@ func HandleLiniiVanzari(w http.ResponseWriter, r *http.Request, db datasources.D
 }
 
 func getLiniiVanzari(r *http.Request, db datasources.DBClient, logger *log.Logger) ([]byte, int, error) {
-	IDIntrare, err := getIntParameter(r, "IDIntrare")
+	IDIntrare, err := getIntParameter(r, "IDIntrare", true)
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
@@ -113,11 +113,11 @@ func insertLinieVanzare(r *http.Request, db datasources.DBClient, logger *log.Lo
 }
 
 func deleteLinieVanzare(r *http.Request, db datasources.DBClient, logger *log.Logger) (int, error) {
-	IDIntrare, err := getIntParameter(r, "IDIntrare")
+	IDIntrare, err := getIntParameter(r, "IDIntrare", true)
 	if err != nil {
 		return http.StatusBadRequest, err
 	}
-	numarLinie, err := getIntParameter(r, "NumarLinie")
+	numarLinie, err := getIntParameter(r, "NumarLinie", true)
 	if err != nil {
 		return http.StatusBadRequest, err
 	}

@@ -73,27 +73,27 @@ func getFormReport(dw datasources.DBClient, r *http.Request, logger *log.Logger)
 }
 
 func getFormParams(r *http.Request) (repositories.FormParams, error) {
-	codVanzator, err := getIntParameter(r, "CodVanzator")
+	codVanzator, err := getIntParameter(r, "CodVanzator", false)
 	if err != nil {
 		return repositories.FormParams{}, err
 	}
-	numeArticol, err := getStringParameter(r, "NumeArticol")
+	numeArticol, err := getStringParameter(r, "NumeArticol", false)
 	if err != nil {
 		return repositories.FormParams{}, err
 	}
-	numePartener, err := getStringParameter(r, "NumePartener")
+	numePartener, err := getStringParameter(r, "NumePartener", false)
 	if err != nil {
 		return repositories.FormParams{}, err
 	}
-	numeSucursala, err := getStringParameter(r, "NumeSucursala")
+	numeSucursala, err := getStringParameter(r, "NumeSucursala", false)
 	if err != nil {
 		return repositories.FormParams{}, err
 	}
-	dataStart, err := getStringParameter(r, "DataStart")
+	dataStart, err := getStringParameter(r, "DataStart", false)
 	if err != nil {
 		return repositories.FormParams{}, err
 	}
-	dataEnd, err := getStringParameter(r, "DataEnd")
+	dataEnd, err := getStringParameter(r, "DataEnd", false)
 	if err != nil {
 		return repositories.FormParams{}, err
 	}

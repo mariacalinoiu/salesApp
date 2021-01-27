@@ -138,4 +138,9 @@ type (
 		Volum           float32 `json:"Volum"`
 		NumarTranzactii float32 `json:"NumarTranzactii"`
 	}
+
+	VanzariByGrupeArticole struct {
+		NumeGrupa     string  `json:"NumeGrupa"`
+		VanzareTotala float32 `json:"VanzareTotala"`
+	}
 )
