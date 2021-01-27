@@ -26,8 +26,6 @@ func HandleSucursale(w http.ResponseWriter, r *http.Request, db datasources.DBCl
 		response, status, err = getSucursale(db, logger)
 	case http.MethodPost, http.MethodPut:
 		status, err = insertSucursala(r, db, logger, r.Method == http.MethodPut)
-	//case http.MethodDelete:
-	//	status, err = deleteOrder(r, db, logger)
 	default:
 		status = http.StatusBadRequest
 		err = errors.New("wrong method type for /sucursale route")

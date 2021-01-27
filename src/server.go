@@ -110,6 +110,11 @@ func newServer(db datasources.DBClient, dw datasources.DBClient, options ...opti
 			handlers.HandleGroupedFormReport(w, r, dw, s.logger)
 		},
 	)
+	s.mux.HandleFunc("/vanzariGrupeArticole",
+		func(w http.ResponseWriter, r *http.Request) {
+			handlers.HandleVanzariGrupeArticole(w, r, dw, s.logger)
+		},
+	)
 
 	return s
 }

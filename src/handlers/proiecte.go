@@ -26,8 +26,6 @@ func HandleProiecte(w http.ResponseWriter, r *http.Request, db datasources.DBCli
 		response, status, err = getProiecte(db, logger)
 	case http.MethodPost, http.MethodPut:
 		status, err = insertProiect(r, db, logger, r.Method == http.MethodPut)
-	//case http.MethodDelete:
-	//	status, err = deleteOrder(r, db, logger)
 	default:
 		status = http.StatusBadRequest
 		err = errors.New("wrong method type for /proiecte route")
