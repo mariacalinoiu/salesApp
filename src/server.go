@@ -120,6 +120,11 @@ func newServer(db datasources.DBClient, dw datasources.DBClient, options ...opti
 			handlers.HandleCantitatiJudete(w, r, dw, s.logger)
 		},
 	)
+	s.mux.HandleFunc("/discountTrimestre",
+		func(w http.ResponseWriter, r *http.Request) {
+			handlers.HandleProcentDiscountTrimestre(w, r, dw, s.logger)
+		},
+	)
 
 	return s
 }

@@ -778,6 +778,48 @@ func (client DBClient) GetCantitatiJudete() ([]repositories.CantitateJudete, err
 	return results, nil
 }
 
+func (client DBClient) GetProcentDiscountTrimestre() ([]repositories.ProcentDiscountTrimestru, error) {
+	var (
+		results         []repositories.ProcentDiscountTrimestru
+		trimestru       string
+		procentDiscount float32
+	)
+
+	rows, err := client.db.Query(`
+		SELECT NVL(AVG(fv."Dicount" * 100 / NVL(fv."Pret", 1)), 0) ProcentDiscount, dd."An" || '-' || 'q' || dd."Trimestru" Trimestru
+		FROM "Fapt_Vanzare" fv, "Dimesiune_Data" dd
+		WHERE fv."Data" = dd."Data"
+		GROUP BY dd."An", dd."Trimestru"
+		ORDER BY Trimestru
+	`)
+	if err != nil {
+		return []repositories.ProcentDiscountTrimestru{}, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&procentDiscount, &trimestru)
+		if err != nil {
+			return []repositories.ProcentDiscountTrimestru{}, err
+		}
+
+		results = append(
+			results,
+			repositories.ProcentDiscountTrimestru{
+				Trimestru:       trimestru,
+				ProcentDiscount: procentDiscount,
+			},
+		)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []repositories.ProcentDiscountTrimestru{}, err
+	}
+
+	return results, nil
+}
+
 func (client DBClient) GetFormReport(params repositories.FormParams) ([]repositories.FormResult, error) {
 	selectStatement := `SELECT fv."Pret", fv."Cantitate", fv."Vat", fv."Dicount", fv."Platit", fv."Comision", fv."Volum", fv."NumarTranzactii"`
 	fromStatement := `FROM "Fapt_Vanzare" fv`

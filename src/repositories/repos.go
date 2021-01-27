@@ -149,4 +149,9 @@ type (
 		Um             string  `json:"Um"`
 		CantitateMedie float32 `json:"CantitateMedie"`
 	}
+
+	ProcentDiscountTrimestru struct {
+		Trimestru       string  `json:"Trimestru"`
+		ProcentDiscount float32 `json:"ProcentDiscount"`
+	}
 )
