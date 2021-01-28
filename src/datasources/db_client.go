@@ -148,7 +148,7 @@ func (client DBClient) GetVanzari() ([]repositories.Vanzare, error) {
 	)
 
 	rows, err := client.db.Query(
-		`SELECT "IdIntrare", "CodPartener", "Status", "Data", "DataLivrare", "Total", "Vat", "Discount", "Moneda", "Platit", "Comentarii", "CodVanzator", "IdSucursala" FROM "Vanzari"`,
+		`SELECT "IdIntrare", "CodPartener", "Status", "Data", "DataLivrare", "Total", "Vat", "Discount", "Moneda", "Platit", NVL("Comentarii", 'N/A'), "CodVanzator", "IdSucursala" FROM "Vanzari"`,
 	)
 	if err != nil {
 		return []repositories.Vanzare{}, err
