@@ -24,8 +24,8 @@ func HandleProiecte(w http.ResponseWriter, r *http.Request, db datasources.DBCli
 		w.Header().Set("Access-Control-Expose-Headers", "Authorization")
 	case http.MethodGet:
 		response, status, err = getProiecte(db, logger)
-	case http.MethodPost, http.MethodPut:
-		status, err = insertProiect(r, db, logger, r.Method == http.MethodPut)
+	case http.MethodPost:
+		status, err = insertProiect(r, db, logger)
 	default:
 		status = http.StatusBadRequest
 		err = errors.New("wrong method type for /proiecte route")
@@ -86,17 +86,13 @@ func extractProiectParams(r *http.Request) (repositories.Proiect, error) {
 	return unmarshalledProiect, nil
 }
 
-func insertProiect(r *http.Request, db datasources.DBClient, logger *log.Logger, update bool) (int, error) {
+func insertProiect(r *http.Request, db datasources.DBClient, logger *log.Logger) (int, error) {
 	proiect, err := extractProiectParams(r)
 	if err != nil {
 		return http.StatusBadRequest, errors.New("proiect information sent on request body does not match required format")
 	}
 
-	//if update {
-	//	err = db.EditOrder(proiect)
-	//} else {
 	err = db.InsertProiect(proiect)
-	//}
 	if err != nil {
 		logger.Printf("Internal error: %s", err.Error())
 		return http.StatusInternalServerError, errors.New("could not save proiect")

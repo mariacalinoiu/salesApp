@@ -24,8 +24,8 @@ func HandleVanzatori(w http.ResponseWriter, r *http.Request, db datasources.DBCl
 		w.Header().Set("Access-Control-Expose-Headers", "Authorization")
 	case http.MethodGet:
 		response, status, err = getVanzatori(db, logger)
-	case http.MethodPost, http.MethodPut:
-		status, err = insertVanzator(r, db, logger, r.Method == http.MethodPut)
+	case http.MethodPost:
+		status, err = insertVanzator(r, db, logger)
 	default:
 		status = http.StatusBadRequest
 		err = errors.New("wrong method type for /vanzatori route")
@@ -86,17 +86,13 @@ func extractVanzatorParams(r *http.Request) (repositories.InsertVanzator, error)
 	return unmarshalledVanzator, nil
 }
 
-func insertVanzator(r *http.Request, db datasources.DBClient, logger *log.Logger, update bool) (int, error) {
+func insertVanzator(r *http.Request, db datasources.DBClient, logger *log.Logger) (int, error) {
 	vanzator, err := extractVanzatorParams(r)
 	if err != nil {
 		return http.StatusBadRequest, errors.New("vanzator information sent on request body does not match required format")
 	}
 
-	//if update {
-	//	err = db.EditOrder(articol)
-	//} else {
 	err = db.InsertVanzator(vanzator)
-	//}
 	if err != nil {
 		logger.Printf("Internal error: %s", err.Error())
 		return http.StatusInternalServerError, errors.New("could not save vanzator")

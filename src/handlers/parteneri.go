@@ -24,8 +24,8 @@ func HandleParteneri(w http.ResponseWriter, r *http.Request, db datasources.DBCl
 		w.Header().Set("Access-Control-Expose-Headers", "Authorization")
 	case http.MethodGet:
 		response, status, err = getParteneri(db, logger)
-	case http.MethodPost, http.MethodPut:
-		status, err = insertPartener(r, db, logger, r.Method == http.MethodPut)
+	case http.MethodPost:
+		status, err = insertPartener(r, db, logger)
 	default:
 		status = http.StatusBadRequest
 		err = errors.New("wrong method type for /parteneri route")
@@ -86,17 +86,13 @@ func extractPartenerParams(r *http.Request) (repositories.InsertPartener, error)
 	return unmarshalledPartenerAdresa, nil
 }
 
-func insertPartener(r *http.Request, db datasources.DBClient, logger *log.Logger, update bool) (int, error) {
+func insertPartener(r *http.Request, db datasources.DBClient, logger *log.Logger) (int, error) {
 	partenerAdresa, err := extractPartenerParams(r)
 	if err != nil {
 		return http.StatusBadRequest, errors.New("partener information sent on request body does not match required format")
 	}
 
-	//if update {
-	//	err = db.EditPartener(proiect)
-	//} else {
 	err = db.InsertPartener(partenerAdresa)
-	//}
 	if err != nil {
 		logger.Printf("Internal error: %s", err.Error())
 		return http.StatusInternalServerError, errors.New("could not save partener")
