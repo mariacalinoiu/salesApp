@@ -136,8 +136,8 @@ func newServer(db datasources.DBClient, dw datasources.DBClient, options ...opti
 
 func main() {
 	logger := log.New(os.Stdout, "", 0)
-	db := datasources.GetClient("SCHEMA_PROIECT_OLDB", "pass1234", "5.12.199.171:1521", "ORCL.DOCKER.INTERNAL")
-	dw := datasources.GetClient("SCHEMA_PROIECT_OLAP", "pass1234", "5.12.199.171:1521", "ORCL.DOCKER.INTERNAL")
+	db := datasources.GetClient("SCHEMA_PROIECT_OLDB", "pass1234", "188.25.9.73:1521", "ORCL.DOCKER.INTERNAL")
+	dw := datasources.GetClient("SCHEMA_PROIECT_OLAP", "pass1234", "188.25.9.73:1521", "ORCL.DOCKER.INTERNAL")
 	hs := setup(logger, db, dw)
 
 	logger.Printf("Listening on http://localhost%s\n", hs.Addr)
