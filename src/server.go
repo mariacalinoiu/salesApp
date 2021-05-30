@@ -137,7 +137,7 @@ func newServer(db datasources.DBClient, dw datasources.DBClient, options ...opti
 
 func main() {
 	logger := log.New(os.Stdout, "", 0)
-	ip := "86.127.133.101"
+	ip := "188.27.83.120"
 	db := datasources.GetClient("SCHEMA_PROIECT_OLDB", "pass1234", fmt.Sprintf("%s:1521", ip), "ORCL.DOCKER.INTERNAL")
 	dw := datasources.GetClient("SCHEMA_PROIECT_OLAP", "pass1234", fmt.Sprintf("%s:1521", ip), "ORCL.DOCKER.INTERNAL")
 	hs := setup(logger, db, dw)
